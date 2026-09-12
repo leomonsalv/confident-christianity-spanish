@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-primary: #f8fafc;
+    --text-primary: #0f172a;
+    --card-bg: #ffffff;
+    --border-color: #e2e8f0;
+  }
+
+  .theme-sepia {
+    --bg-primary: #fbf7ee;
+    --text-primary: #2d261e;
+    --card-bg: #f5eedb;
+    --border-color: #e5dcc5;
+  }
+
+  .theme-dark {
+    --bg-primary: #0b1120;
+    --text-primary: #f1f5f9;
+    --card-bg: #131c2e;
+    --border-color: #1e293b;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for continuo feel */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Lectura Continua continuous reading styling */
+.reader-panel {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.reader-panel:hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+}
+
+.font-reader-sans {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.font-reader-serif {
+  font-family: 'Merriweather', Georgia, Cambria, 'Times New Roman', Times, serif;
+}
+
+.font-size-sm {
+  font-size: 0.925rem;
+  line-height: 1.65;
+}
+
+.font-size-base {
+  font-size: 1.05rem;
+  line-height: 1.75;
+}
+
+.font-size-lg {
+  font-size: 1.175rem;
+  line-height: 1.85;
+}
+
+.font-size-xl {
+  font-size: 1.3rem;
+  line-height: 1.95;
+}
+
+/* Ribbon and badges matching original guide */
+.guide-ribbon {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  clip-path: polygon(0% 0%, calc(100% - 15px) 0%, 100% 50%, calc(100% - 15px) 100%, 0% 100%);
+}
+
+.guide-ribbon-subtle {
+  clip-path: polygon(0% 0%, calc(100% - 12px) 0%, 100% 50%, calc(100% - 12px) 100%, 0% 100%);
+}
