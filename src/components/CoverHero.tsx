@@ -60,7 +60,7 @@ export const CoverHero: React.FC<CoverHeroProps> = ({
 
       {/* Metadata credits */}
       <div className="max-w-md mx-auto space-y-1 text-xs text-slate-500 dark:text-slate-400">
-        <p className="font-semibold text-slate-700 dark:text-slate-300">
+        <p id="tour-sample-text" className="font-semibold text-slate-700 dark:text-slate-300">
           {GUIDE_METADATA.workbookComplement}
         </p>
         <p>{GUIDE_METADATA.terminologyBase}</p>

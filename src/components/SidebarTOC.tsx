@@ -12,6 +12,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { MODULES_DATA, GUIDE_METADATA } from '../data/guideContent';
+import { UserRole } from '../types';
 
 interface SidebarTOCProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ interface SidebarTOCProps {
   activeId: string;
   onSelectSection: (id: string) => void;
   bookmarkedModules: number[];
+  role?: UserRole;
 }
 
 export const SidebarTOC: React.FC<SidebarTOCProps> = ({
@@ -27,7 +29,9 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
   activeId,
   onSelectSection,
   bookmarkedModules,
+  role = 'facilitador',
 }) => {
+  const isStudent = role === 'estudiante';
   const [filterQuery, setFilterQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'bookmarks'>('all');
 
@@ -69,7 +73,7 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
                 Tabla de Contenido
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {GUIDE_METADATA.title} · 32 Páginas
+                {isStudent ? '20 Módulos de Estudio' : `${GUIDE_METADATA.title} · 32 Páginas`}
               </p>
             </div>
           </div>
@@ -121,7 +125,7 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
 
         {/* Scrollable list */}
         <div className="flex-1 overflow-y-auto p-3 space-y-4">
-          {activeTab === 'all' && !filterQuery && (
+          {!isStudent && activeTab === 'all' && !filterQuery && (
             <div className="space-y-1">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-2">
                 Introducción & Guía
@@ -272,7 +276,7 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
           </div>
 
           {/* Reference D */}
-          {activeTab === 'all' && !filterQuery && (
+          {!isStudent && activeTab === 'all' && !filterQuery && (
             <div className="space-y-1 pt-2 border-t border-slate-200 dark:border-slate-800">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-2">
                 Parte D · Referencias

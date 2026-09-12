@@ -10,9 +10,11 @@ import {
   Sun,
   Moon,
   Coffee,
-  MessageSquarePlus
+  MessageSquarePlus,
+  GraduationCap,
+  Users
 } from 'lucide-react';
-import { ReaderSettings, ThemeMode, ReaderMode } from '../types';
+import { ReaderSettings, ThemeMode, ReaderMode, UserRole } from '../types';
 
 interface NavbarProps {
   progress: number;
@@ -25,6 +27,8 @@ interface NavbarProps {
   onToggleAudio: () => void;
   isAudioPlaying: boolean;
   onOpenSuggestions: () => void;
+  role?: UserRole;
+  onOpenRoleModal?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -37,6 +41,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleAudio,
   isAudioPlaying,
   onOpenSuggestions,
+  role = 'facilitador',
 }) => {
   const toggleTheme = () => {
     const themeCycle: ThemeMode[] = ['light', 'sepia', 'dark'];
@@ -72,14 +77,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                 Cristianismo con Confianza
               </h1>
               <p className="hidden md:block text-xs text-slate-500 dark:text-slate-400 truncate">
-                Guía del Facilitador · Los 20 módulos
+                {role === 'estudiante' ? '20 Módulos de Estudio & Reflexión' : 'Guía del Facilitador · Los 20 módulos'}
               </p>
             </div>
           </div>
         </div>
 
         {/* Center: Reader Mode Quick Switcher */}
-        <div className="hidden lg:flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-medium">
+        <div id="tour-reader-modes" className="hidden lg:flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-medium">
           <button
             onClick={() => onUpdateSettings({ readerMode: 'continuous' })}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
@@ -105,6 +110,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           <button
+            id="tour-cards-mode"
             onClick={() => onUpdateSettings({ readerMode: 'cards' })}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
               settings.readerMode === 'cards'
@@ -129,18 +135,21 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="hidden sm:inline">Sugerencias</span>
           </button>
 
-          {/* Session Timer Quick Access */}
-          <button
-            onClick={onOpenTimer}
-            title="Cronómetro interactivo de sesión (60 min)"
-            className="flex items-center gap-1 p-2 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          >
-            <Clock className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-            <span className="hidden md:inline">60'</span>
-          </button>
+          {/* Session Timer Quick Access (only for Facilitators) */}
+          {role !== 'estudiante' && (
+            <button
+              onClick={onOpenTimer}
+              title="Cronómetro interactivo de sesión (60 min)"
+              className="flex items-center gap-1 p-2 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <Clock className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+              <span className="hidden md:inline">60'</span>
+            </button>
+          )}
 
           {/* Audio narration */}
           <button
+            id="tour-audio-button"
             onClick={onToggleAudio}
             title={isAudioPlaying ? 'Pausar audio lector' : 'Escuchar resumen (Audio)'}
             className={`p-2 rounded-xl transition-colors ${

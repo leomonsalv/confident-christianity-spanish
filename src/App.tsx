@@ -14,8 +14,11 @@ import { ParteBSection } from './components/ParteBSection';
 import { ParteCSection } from './components/ParteCSection';
 import { ModuleCard } from './components/ModuleCard';
 import { ParteDSection } from './components/ParteDSection';
+import { RoleSelectionModal } from './components/RoleSelectionModal';
+import { StudentHero } from './components/StudentHero';
+import { OnboardingTour } from './components/OnboardingTour';
 import { MODULES_DATA, ModuleItem } from './data/guideContent';
-import { ReaderSettings, ThemeMode } from './types';
+import { ReaderSettings, ThemeMode, UserRole } from './types';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -46,6 +49,68 @@ export const App: React.FC = () => {
       autoScrollSpeed: 2,
     };
   });
+
+  // User Role State (Facilitador vs Estudiante)
+  const [userRole, setUserRole] = useState<UserRole | null>(() => {
+    const params = new URLSearchParams(window.location.search);
+    const roleParam = params.get('role');
+    if (roleParam === 'estudiante' || roleParam === 'facilitador') {
+      return roleParam;
+    }
+    // When visiting root without ?role=, do not auto-assume a role
+    return null;
+  });
+
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState<boolean>(() => {
+    const params = new URLSearchParams(window.location.search);
+    const roleParam = params.get('role');
+    if (roleParam === 'estudiante' || roleParam === 'facilitador') {
+      return false;
+    }
+    // When entering the main link (http://localhost:5181/), ALWAYS show the bifurcación!
+    return true;
+  });
+
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(false);
+
+  const handleSelectRole = (newRole: UserRole) => {
+    setUserRole(newRole);
+    localStorage.setItem('cc_user_role', newRole);
+    setIsRoleModalOpen(false);
+
+    // Synchronize query param without page reload
+    const url = new URL(window.location.href);
+    url.searchParams.set('role', newRole);
+    window.history.replaceState({}, '', url.toString());
+
+    // When role is selected from the bifurcación, ALWAYS launch the onboarding tour!
+    setTimeout(() => {
+      setIsOnboardingOpen(true);
+    }, 400);
+  };
+
+  // If user navigates or reloads on root without ?role=, ensure bifurcation is open
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const roleParam = params.get('role');
+    if (!roleParam) {
+      setIsRoleModalOpen(true);
+      setUserRole(null);
+    }
+    if (params.get('reset_onboarding') === 'true' || params.get('tour') === 'true') {
+      localStorage.removeItem('cc_onboarding_completed');
+      setTimeout(() => setIsOnboardingOpen(true), 400);
+    }
+  }, []);
+
+  // Trigger Onboarding Tour if user hasn't seen it yet
+  useEffect(() => {
+    const completed = localStorage.getItem('cc_onboarding_completed');
+    if (!completed && userRole && !isRoleModalOpen) {
+      const timer = setTimeout(() => setIsOnboardingOpen(true), 600);
+      return () => clearTimeout(timer);
+    }
+  }, [userRole, isRoleModalOpen]);
 
   // Bookmarks & Notes in localStorage
   const [bookmarkedModules, setBookmarkedModules] = useState<number[]>(() => {
@@ -227,43 +292,79 @@ export const App: React.FC = () => {
         onOpenSuggestions={() => setIsSuggestionsOpen(true)}
         onToggleAudio={() => audioModule ? handlePlayAudio(audioModule) : handlePlayAudio(MODULES_DATA[0])}
         isAudioPlaying={isAudioPlaying}
+        role={userRole || 'facilitador'}
+        onOpenRoleModal={() => setIsRoleModalOpen(true)}
       />
 
       {/* Main Content Area */}
       <main className="w-full">
         {settings.readerMode === 'continuous' ? (
           /* Lectura Continua Vertical */
-          <div className="space-y-4">
-            <CoverHero
-              onStartReading={() => handleSelectSection('acerca')}
-              onJumpToModules={() => handleSelectSection('parte-c-intro')}
-              onOpenTimer={() => setIsTimerOpen(true)}
-        onOpenSuggestions={() => setIsSuggestionsOpen(true)}
-            />
+          userRole === 'estudiante' ? (
+            /* Vista Limpia para Estudiantes (Únicamente los 20 Módulos de estudio) */
+            <div className="space-y-6">
+              <StudentHero
+                onStartReading={() => handleSelectSection('modulo-1')}
+                onOpenSearch={() => setIsSearchOpen(true)}
+                onOpenTOC={() => setIsTOCOpen(true)}
+                onToggleAudio={() => audioModule ? handlePlayAudio(audioModule) : handlePlayAudio(MODULES_DATA[0])}
+                isAudioPlaying={isAudioPlaying}
+                onSwitchToFacilitator={() => handleSelectRole('facilitador')}
+              />
 
-            <AboutSection />
-            <ParteASection />
-            <ParteBSection onOpenTimer={() => setIsTimerOpen(true)}
-        onOpenSuggestions={() => setIsSuggestionsOpen(true)} />
-            <ParteCSection />
-
-            {/* Modules 1 to 20 */}
-            <div className="space-y-2">
-              {MODULES_DATA.map((mod) => (
-                <ModuleCard
-                  key={mod.id}
-                  module={mod}
-                  isBookmarked={bookmarkedModules.includes(mod.number)}
-                  onToggleBookmark={handleToggleBookmark}
-                  onPlayAudio={handlePlayAudio}
-                  notes={facilitatorNotes[mod.number] || ''}
-                  onSaveNotes={handleSaveNotes}
-                />
-              ))}
+              {/* Modules 1 to 20 without facilitator clutter */}
+              <div className="space-y-2">
+                {MODULES_DATA.map((mod) => (
+                  <ModuleCard
+                    key={mod.id}
+                    module={mod}
+                    role="estudiante"
+                    isBookmarked={bookmarkedModules.includes(mod.number)}
+                    onToggleBookmark={handleToggleBookmark}
+                    onPlayAudio={handlePlayAudio}
+                    notes=""
+                    onSaveNotes={() => {}}
+                  />
+                ))}
+              </div>
             </div>
+          ) : (
+            /* Vista Completa para Facilitadores (Guía completa, Partes A, B, C, D) */
+            <div className="space-y-4">
+              <CoverHero
+                onStartReading={() => handleSelectSection('acerca')}
+                onJumpToModules={() => handleSelectSection('parte-c-intro')}
+                onOpenTimer={() => setIsTimerOpen(true)}
+                onOpenSuggestions={() => setIsSuggestionsOpen(true)}
+              />
 
-            <ParteDSection />
-          </div>
+              <AboutSection />
+              <ParteASection />
+              <ParteBSection 
+                onOpenTimer={() => setIsTimerOpen(true)}
+                onOpenSuggestions={() => setIsSuggestionsOpen(true)} 
+              />
+              <ParteCSection />
+
+              {/* Modules 1 to 20 with full facilitator tools */}
+              <div className="space-y-2">
+                {MODULES_DATA.map((mod) => (
+                  <ModuleCard
+                    key={mod.id}
+                    module={mod}
+                    role="facilitador"
+                    isBookmarked={bookmarkedModules.includes(mod.number)}
+                    onToggleBookmark={handleToggleBookmark}
+                    onPlayAudio={handlePlayAudio}
+                    notes={facilitatorNotes[mod.number] || ''}
+                    onSaveNotes={handleSaveNotes}
+                  />
+                ))}
+              </div>
+
+              <ParteDSection />
+            </div>
+          )
         ) : settings.readerMode === 'chapter' ? (
           /* Episode / Module-by-Module Mode */
           <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-8">
@@ -300,6 +401,7 @@ export const App: React.FC = () => {
             {/* Active Module Card */}
             <ModuleCard
               module={MODULES_DATA[selectedModuleIdx]}
+              role={userRole || 'facilitador'}
               isBookmarked={bookmarkedModules.includes(MODULES_DATA[selectedModuleIdx].number)}
               onToggleBookmark={handleToggleBookmark}
               onPlayAudio={handlePlayAudio}
@@ -331,18 +433,20 @@ export const App: React.FC = () => {
             </div>
           </div>
         ) : (
-          /* Facilitator Cards Quick Grid Mode */
+          /* Facilitator / Student Cards Quick Grid Mode */
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">
                 <LayoutGrid className="w-4 h-4" />
-                <span>Vista Rápida para Facilitadores en Sesión</span>
+                <span>{userRole === 'estudiante' ? 'Vista Rápida de Módulos' : 'Vista Rápida para Facilitadores en Sesión'}</span>
               </div>
               <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">
                 Cuadrícula de los 20 Módulos
               </h2>
               <p className="text-sm text-slate-500">
-                Resumen ejecutivo con el Objetivo y "Lo que no se puede recortar" de cada módulo para consulta inmediata durante reuniones.
+                {userRole === 'estudiante' 
+                  ? 'Resumen del Objetivo de cada módulo para repaso ágil.' 
+                  : 'Resumen ejecutivo con el Objetivo y "Lo que no se puede recortar" de cada módulo para consulta inmediata durante reuniones.'}
               </p>
             </div>
 
@@ -370,9 +474,11 @@ export const App: React.FC = () => {
                       <strong>Objetivo:</strong> {mod.objective}
                     </div>
 
-                    <div className="p-3 rounded-xl bg-pink-50/70 dark:bg-pink-950/30 border-l-2 border-pink-600 text-xs text-slate-700 dark:text-pink-200">
-                      <strong>No recortar:</strong> {mod.cannotCut}
-                    </div>
+                    {userRole !== 'estudiante' && (
+                      <div className="p-3 rounded-xl bg-pink-50/70 dark:bg-pink-950/30 border-l-2 border-pink-600 text-xs text-slate-700 dark:text-pink-200">
+                        <strong>No recortar:</strong> {mod.cannotCut}
+                      </div>
+                    )}
                   </div>
 
                   <button
@@ -421,12 +527,14 @@ export const App: React.FC = () => {
         activeId={activeId}
         onSelectSection={handleSelectSection}
         bookmarkedModules={bookmarkedModules}
+        role={userRole || 'facilitador'}
       />
 
       <SearchModal
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
         onSelectResult={handleSelectSection}
+        role={userRole || 'facilitador'}
       />
 
       <ReaderSettingsModal
@@ -439,6 +547,22 @@ export const App: React.FC = () => {
       <SessionTimerModal
         isOpen={isTimerOpen}
         onClose={() => setIsTimerOpen(false)}
+      />
+
+      {/* Role Selection / Bifurcation Modal */}
+      <RoleSelectionModal
+        isOpen={isRoleModalOpen}
+        currentRole={userRole}
+        onSelectRole={handleSelectRole}
+        onClose={userRole ? () => setIsRoleModalOpen(false) : undefined}
+      />
+
+      {/* Appcues-style Onboarding Tour */}
+      <OnboardingTour
+        isOpen={isOnboardingOpen}
+        onClose={() => setIsOnboardingOpen(false)}
+        onSelectReaderMode={(mode) => setSettings(prev => ({ ...prev, readerMode: mode }))}
+        onToggleAudio={() => audioModule ? handlePlayAudio(audioModule) : handlePlayAudio(MODULES_DATA[0])}
       />
 
       {/* Text Selection Suggestion Popover */}

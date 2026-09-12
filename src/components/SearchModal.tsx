@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, X, BookOpen, HelpCircle, ArrowRight, CornerDownLeft } from 'lucide-react';
 import { MODULES_DATA, PARTE_D, PARTE_A, PARTE_B } from '../data/guideContent';
+import { UserRole } from '../types';
 
 interface SearchResult {
   id: string;
@@ -14,13 +15,16 @@ interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelectResult: (id: string) => void;
+  role?: UserRole;
 }
 
 export const SearchModal: React.FC<SearchModalProps> = ({
   isOpen,
   onClose,
   onSelectResult,
+  role = 'facilitador',
 }) => {
+  const isStudent = role === 'estudiante';
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -85,18 +89,20 @@ export const SearchModal: React.FC<SearchModalProps> = ({
         });
       }
 
-      // Objections match
-      m.commonObjections.forEach((obj) => {
-        if (obj.objection.toLowerCase().includes(q) || obj.response.toLowerCase().includes(q)) {
-          found.push({
-            id: `modulo-${m.number}`,
-            type: 'objection',
-            title: `Objeción: ${obj.objection}`,
-            snippet: obj.response,
-            badge: `Módulo ${m.number} · Objeción`
-          });
-        }
-      });
+      // Objections match (only for facilitators)
+      if (!isStudent) {
+        m.commonObjections.forEach((obj) => {
+          if (obj.objection.toLowerCase().includes(q) || obj.response.toLowerCase().includes(q)) {
+            found.push({
+              id: `modulo-${m.number}`,
+              type: 'objection',
+              title: `Objeción: ${obj.objection}`,
+              snippet: obj.response,
+              badge: `Módulo ${m.number} · Objeción`
+            });
+          }
+        });
+      }
 
       // Questions match
       m.discussionQuestions.forEach((dq) => {
@@ -112,50 +118,53 @@ export const SearchModal: React.FC<SearchModalProps> = ({
       });
     });
 
-    // Search in Parte D Reference
-    PARTE_D.d1.turns.forEach((t) => {
-      if (t.question.toLowerCase().includes(q) || t.script.toLowerCase().includes(q)) {
+    // Facilitator-only reference sections
+    if (!isStudent) {
+      // Search in Parte D Reference
+      PARTE_D.d1.turns.forEach((t) => {
+        if (t.question.toLowerCase().includes(q) || t.script.toLowerCase().includes(q)) {
+          found.push({
+            id: 'parte-d-1',
+            type: 'reference',
+            title: `Vuelta D.1: ${t.question}`,
+            snippet: t.script,
+            badge: `Referencia D.1`
+          });
+        }
+      });
+
+      PARTE_D.d4.headings.forEach((h) => {
+        if (h.tag.toLowerCase().includes(q) || h.content.toLowerCase().includes(q)) {
+          found.push({
+            id: 'parte-d-4',
+            type: 'reference',
+            title: `Esquema de Chapman: ${h.tag}`,
+            snippet: h.content,
+            badge: `Referencia D.4`
+          });
+        }
+      });
+
+      // Search in Parte A and B
+      if (PARTE_A.a2.goldenRule.quote.toLowerCase().includes(q) || 'investigar'.includes(q) || 'apologetica'.includes(q)) {
         found.push({
-          id: 'parte-d-1',
-          type: 'reference',
-          title: `Vuelta D.1: ${t.question}`,
-          snippet: t.script,
-          badge: `Referencia D.1`
+          id: 'parte-a',
+          type: 'guide',
+          title: 'Regla de oro del facilitador (A.2)',
+          snippet: PARTE_A.a2.goldenRule.quote,
+          badge: 'Parte A'
         });
       }
-    });
 
-    PARTE_D.d4.headings.forEach((h) => {
-      if (h.tag.toLowerCase().includes(q) || h.content.toLowerCase().includes(q)) {
+      if (q.includes('tiempo') || q.includes('cronometro') || q.includes('sesion') || q.includes('sala') || q.includes('resumen')) {
         found.push({
-          id: 'parte-d-4',
-          type: 'reference',
-          title: `Esquema de Chapman: ${h.tag}`,
-          snippet: h.content,
-          badge: `Referencia D.4`
+          id: 'parte-b',
+          type: 'guide',
+          title: 'Sesión estándar de una hora (60 minutos)',
+          snippet: PARTE_B.corePrinciple,
+          badge: 'Parte B'
         });
       }
-    });
-
-    // Search in Parte A and B
-    if (PARTE_A.a2.goldenRule.quote.toLowerCase().includes(q) || 'investigar'.includes(q) || 'apologetica'.includes(q)) {
-      found.push({
-        id: 'parte-a',
-        type: 'guide',
-        title: 'Regla de oro del facilitador (A.2)',
-        snippet: PARTE_A.a2.goldenRule.quote,
-        badge: 'Parte A'
-      });
-    }
-
-    if (q.includes('tiempo') || q.includes('cronometro') || q.includes('sesion') || q.includes('sala') || q.includes('resumen')) {
-      found.push({
-        id: 'parte-b',
-        type: 'guide',
-        title: 'Sesión estándar de una hora (60 minutos)',
-        snippet: PARTE_B.corePrinciple,
-        badge: 'Parte B'
-      });
     }
 
     setResults(found.slice(0, 15));

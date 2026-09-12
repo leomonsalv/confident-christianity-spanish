@@ -18,6 +18,7 @@ import {
 import { ModuleItem } from '../data/guideContent';
 import { PARTE_D } from '../data/guideContent';
 import { DrPeterPresentation } from './DrPeterPresentation';
+import { UserRole } from '../types';
 
 interface ModuleCardProps {
   module: ModuleItem;
@@ -27,6 +28,7 @@ interface ModuleCardProps {
   notes: string;
   onSaveNotes: (num: number, text: string) => void;
   onJumpToVuelta?: (turnId: number) => void;
+  role?: UserRole;
 }
 
 export const ModuleCard: React.FC<ModuleCardProps> = ({
@@ -37,7 +39,9 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
   notes,
   onSaveNotes,
   onJumpToVuelta,
+  role = 'facilitador',
 }) => {
+  const isStudent = role === 'estudiante';
   const [copiedQuestions, setCopiedQuestions] = useState(false);
   const [copiedObjectionIdx, setCopiedObjectionIdx] = useState<number | null>(null);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
@@ -111,17 +115,19 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
               <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
             </button>
 
-            <button
-              onClick={() => setIsNotesOpen(!isNotesOpen)}
-              title="Mis notas de facilitador"
-              className={`p-2 rounded-xl transition-colors ${
-                notes.trim() 
-                  ? 'text-sky-600 bg-sky-50 dark:bg-sky-950/40' 
-                  : 'text-slate-500 hover:text-sky-600 hover:bg-slate-100 dark:hover:bg-slate-800'
-              }`}
-            >
-              <FileEdit className="w-4 h-4" />
-            </button>
+            {!isStudent && (
+              <button
+                onClick={() => setIsNotesOpen(!isNotesOpen)}
+                title="Mis notas de facilitador"
+                className={`p-2 rounded-xl transition-colors ${
+                  notes.trim() 
+                    ? 'text-sky-600 bg-sky-50 dark:bg-sky-950/40' 
+                    : 'text-slate-500 hover:text-sky-600 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+              >
+                <FileEdit className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
 
@@ -137,7 +143,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
       </div>
 
       {/* Facilitator Private Notes Area (Expandable) */}
-      {isNotesOpen && (
+      {!isStudent && isNotesOpen && (
         <div className="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/60 space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
@@ -187,7 +193,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
       />
 
       {/* Driver Alert / Terminology Note if present */}
-      {module.driverAlert && (
+      {!isStudent && module.driverAlert && (
         <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/90 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 text-xs sm:text-sm text-amber-950 dark:text-amber-100 space-y-1.5 shadow-sm">
           <div className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-300 text-xs uppercase tracking-wider">
             <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
@@ -200,15 +206,17 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
       )}
 
       {/* Lo que no se puede recortar (Signature plum/magenta alert box) */}
-      <div className="p-5 sm:p-6 rounded-2xl bg-pink-50/70 dark:bg-pink-950/30 border-l-4 border-pink-700 dark:border-pink-500 space-y-1.5">
-        <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-pink-800 dark:text-pink-300">
-          <AlertTriangle className="w-4 h-4 text-pink-700 dark:text-pink-400" />
-          <span>Lo que no se puede recortar</span>
+      {!isStudent && (
+        <div className="p-5 sm:p-6 rounded-2xl bg-pink-50/70 dark:bg-pink-950/30 border-l-4 border-pink-700 dark:border-pink-500 space-y-1.5">
+          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-pink-800 dark:text-pink-300">
+            <AlertTriangle className="w-4 h-4 text-pink-700 dark:text-pink-400" />
+            <span>Lo que no se puede recortar</span>
+          </div>
+          <p className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-pink-100 leading-relaxed">
+            {module.cannotCut}
+          </p>
         </div>
-        <p className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-pink-100 leading-relaxed">
-          {module.cannotCut}
-        </p>
-      </div>
+      )}
 
       {/* Preguntas de Discusión */}
       {module.discussionQuestions.length > 0 && (
@@ -251,7 +259,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
       )}
 
       {/* Objeciones comunes */}
-      {module.commonObjections.length > 0 && (
+      {!isStudent && module.commonObjections.length > 0 && (
         <div className="space-y-3">
           <h4 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2">
             <HelpCircle className="w-4 h-4 text-sky-600 dark:text-sky-400" />
@@ -290,7 +298,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
       )}
 
       {/* Vuelta D.1 (If available for modules 13-20) */}
-      {correspondingTurn && (
+      {!isStudent && correspondingTurn && (
         <div className="p-5 rounded-2xl bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/60 space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-purple-900 dark:text-purple-300 flex items-center gap-1.5">
@@ -324,7 +332,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
         <div>
           <strong>Cuaderno de trabajo:</strong> {module.workbookRef || 'Ver capítulo afín'}
         </div>
-        {module.vueltaRef && (
+        {!isStudent && module.vueltaRef && (
           <div className="text-sky-600 dark:text-sky-400 font-semibold">
             {module.vueltaRef}
           </div>

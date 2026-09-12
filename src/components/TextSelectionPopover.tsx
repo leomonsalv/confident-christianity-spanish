@@ -15,6 +15,7 @@ interface SelectionState {
   text: string;
   x: number;
   y: number;
+  placement: 'top' | 'bottom';
   sectionId?: string;
   moduleNumber?: number | null;
 }
@@ -77,10 +78,22 @@ export const TextSelectionPopover: React.FC<TextSelectionPopoverProps> = ({ onSu
           el = el.parentElement;
         }
 
+        const NAVBAR_HEIGHT = 70;
+        const FORM_HEIGHT = 330;
+        // If selection is near the top of the viewport, display downwards instead of upwards
+        const isNearTop = (rect.top - NAVBAR_HEIGHT) < FORM_HEIGHT;
+        const placement: 'top' | 'bottom' = isNearTop ? 'bottom' : 'top';
+        const targetY = isNearTop ? (rect.bottom + 10) : Math.max(10, rect.top - 10);
+
+        // Clamp x to avoid horizontal clipping
+        const halfWidth = window.innerWidth < 640 ? 170 : 195;
+        const clampedX = Math.max(halfWidth + 12, Math.min(window.innerWidth - (halfWidth + 12), rect.left + rect.width / 2));
+
         setSelectionState({
           text,
-          x: Math.min(window.innerWidth - 60, Math.max(30, rect.left + rect.width / 2)),
-          y: Math.max(10, rect.top - 8),
+          x: clampedX,
+          y: targetY,
+          placement,
           sectionId: foundSectionId,
           moduleNumber: foundModuleNumber,
         });
@@ -149,7 +162,7 @@ export const TextSelectionPopover: React.FC<TextSelectionPopoverProps> = ({ onSu
         position: 'fixed',
         left: `${selectionState.x}px`,
         top: `${selectionState.y}px`,
-        transform: 'translate(-50%, -100%)',
+        transform: selectionState.placement === 'bottom' ? 'translate(-50%, 0)' : 'translate(-50%, -100%)',
       }}
       className="z-50 select-none animate-in fade-in zoom-in-95 duration-150"
     >
@@ -165,7 +178,7 @@ export const TextSelectionPopover: React.FC<TextSelectionPopoverProps> = ({ onSu
         </button>
       ) : (
         /* Full Suggestion Form Popover */
-        <div className="w-[340px] sm:w-[380px] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-4 space-y-3 text-left">
+        <div className="w-[340px] sm:w-[380px] max-w-[calc(100vw-24px)] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-4 space-y-3 text-left">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
             <div className="flex items-center gap-1.5">
