@@ -6,12 +6,14 @@ interface CoverHeroProps {
   onStartReading: () => void;
   onJumpToModules: () => void;
   onOpenTimer: () => void;
+  onOpenSuggestions?: () => void;
 }
 
 export const CoverHero: React.FC<CoverHeroProps> = ({
   onStartReading,
   onJumpToModules,
   onOpenTimer,
+  onOpenSuggestions,
 }) => {
   return (
     <section id="portada" className="relative pt-6 pb-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto text-center space-y-8">

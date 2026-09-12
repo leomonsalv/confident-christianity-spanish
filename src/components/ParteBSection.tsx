@@ -14,9 +14,10 @@ import { PARTE_B } from '../data/guideContent';
 
 interface ParteBSectionProps {
   onOpenTimer: () => void;
+  onOpenSuggestions?: () => void;
 }
 
-export const ParteBSection: React.FC<ParteBSectionProps> = ({ onOpenTimer }) => {
+export const ParteBSection: React.FC<ParteBSectionProps> = ({ onOpenTimer, onOpenSuggestions }) => {
   return (
     <section id="parte-b" className="pt-12 pb-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto space-y-10">
       {/* Chapter Header */}

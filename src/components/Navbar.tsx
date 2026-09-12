@@ -10,7 +10,8 @@ import {
   LayoutGrid,
   Sun,
   Moon,
-  Coffee
+  Coffee,
+  MessageSquarePlus
 } from 'lucide-react';
 import { ReaderSettings, ThemeMode, ReaderMode } from '../types';
 
@@ -37,6 +38,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenTimer,
   onToggleAudio,
   isAudioPlaying,
+  onOpenSuggestions,
 }) => {
   const toggleTheme = () => {
     const themeCycle: ThemeMode[] = ['light', 'sepia', 'dark'];
