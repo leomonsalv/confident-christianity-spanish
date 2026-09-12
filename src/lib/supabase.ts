@@ -49,6 +49,23 @@ export function saveLocalSuggestion(item: SuggestionRecord): SuggestionRecord {
   return newItem;
 }
 
+// Anti-duplicate lock: keeps track of in-flight and recent submissions (within 5 seconds)
+const inFlightRequests = new Map<string, Promise<{ success: boolean; data?: SuggestionRecord; message: string; isRemote: boolean }>>();
+const recentSubmissions = new Map<string, { timestamp: number; result: { success: boolean; data?: SuggestionRecord; message: string; isRemote: boolean } }>();
+
+export function updateLocalSuggestionWithRemote(localId: string, remoteRecord: SuggestionRecord) {
+  try {
+    const all = getLocalSuggestions();
+    const index = all.findIndex(item => item.id === localId);
+    if (index !== -1) {
+      all[index] = { ...remoteRecord, is_local: false };
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(all));
+    }
+  } catch (e) {
+    console.error('Error updating local suggestion', e);
+  }
+}
+
 export async function submitSuggestion(data: {
   selected_text: string;
   suggestion: string;
@@ -57,61 +74,95 @@ export async function submitSuggestion(data: {
   module_number?: number | null;
   section_id?: string;
 }): Promise<{ success: boolean; data?: SuggestionRecord; message: string; isRemote: boolean }> {
-  const payload: SuggestionRecord = {
-    selected_text: data.selected_text.trim(),
-    suggestion: data.suggestion.trim(),
-    author_name: data.author_name?.trim() || 'Facilitador Anónimo',
-    category: data.category || 'Mejora editorial',
-    module_number: data.module_number ?? null,
-    section_id: data.section_id || 'general',
-    created_at: new Date().toISOString(),
-  };
+  const cleanSelected = data.selected_text.trim();
+  const cleanSuggestion = data.suggestion.trim();
+  const cleanAuthor = data.author_name?.trim() || 'Facilitador Anónimo';
+  const dedupKey = `${cleanSelected}:::${cleanSuggestion}:::${cleanAuthor}`;
 
-  // Always save a local copy as backup
-  const localSaved = saveLocalSuggestion(payload);
+  // 1. Prevent in-flight duplicate requests (e.g. simultaneous double-click)
+  if (inFlightRequests.has(dedupKey)) {
+    return inFlightRequests.get(dedupKey)!;
+  }
 
-  try {
-    // Insert using the client
-    const { data: inserted, error } = await supabase
-      .from('suggestions')
-      .insert([
-        {
-          selected_text: payload.selected_text,
-          suggestion: payload.suggestion,
-          author_name: payload.author_name,
-          category: payload.category,
-          module_number: payload.module_number,
-          section_id: payload.section_id,
-        }
-      ])
-      .select()
-      .single();
+  // 2. Prevent rapid repeat submissions of the exact same content within 5 seconds
+  const recent = recentSubmissions.get(dedupKey);
+  if (recent && (Date.now() - recent.timestamp < 5000)) {
+    return recent.result;
+  }
 
-    if (error) {
-      console.warn('Remote sync note:', error.message);
-      return {
+  const executionPromise = (async () => {
+    const payload: SuggestionRecord = {
+      selected_text: cleanSelected,
+      suggestion: cleanSuggestion,
+      author_name: cleanAuthor,
+      category: data.category || 'Mejora editorial',
+      module_number: data.module_number ?? null,
+      section_id: data.section_id || 'general',
+      created_at: new Date().toISOString(),
+    };
+
+    // Save temporary local copy for offline resilience
+    const localSaved = saveLocalSuggestion(payload);
+
+    try {
+      // Insert using the Supabase client
+      const { data: inserted, error } = await supabase
+        .from('suggestions')
+        .insert([
+          {
+            selected_text: payload.selected_text,
+            suggestion: payload.suggestion,
+            author_name: payload.author_name,
+            category: payload.category,
+            module_number: payload.module_number,
+            section_id: payload.section_id,
+          }
+        ])
+        .select()
+        .single();
+
+      if (error) {
+        console.warn('Remote sync note:', error.message);
+        const res = {
+          success: true,
+          data: localSaved,
+          isRemote: false,
+          message: '¡Sugerencia guardada localmente!',
+        };
+        recentSubmissions.set(dedupKey, { timestamp: Date.now(), result: res });
+        return res;
+      }
+
+      // Update local storage record with the remote Supabase UUID so it is not orphaned
+      if (localSaved.id && inserted) {
+        updateLocalSuggestionWithRemote(localSaved.id, inserted);
+      }
+
+      const res = {
+        success: true,
+        data: { ...inserted, is_local: false },
+        isRemote: true,
+        message: '¡Sugerencia enviada con éxito!',
+      };
+      recentSubmissions.set(dedupKey, { timestamp: Date.now(), result: res });
+      return res;
+    } catch (err: any) {
+      console.warn('Network exception:', err);
+      const res = {
         success: true,
         data: localSaved,
         isRemote: false,
-        message: '¡Sugerencia enviada y guardada con éxito!',
+        message: '¡Sugerencia guardada localmente!',
       };
+      recentSubmissions.set(dedupKey, { timestamp: Date.now(), result: res });
+      return res;
+    } finally {
+      inFlightRequests.delete(dedupKey);
     }
+  })();
 
-    return {
-      success: true,
-      data: { ...inserted, is_local: false },
-      isRemote: true,
-      message: '¡Sugerencia enviada con éxito!',
-    };
-  } catch (err: any) {
-    console.warn('Network exception:', err);
-    return {
-      success: true,
-      data: localSaved,
-      isRemote: false,
-      message: '¡Sugerencia guardada con éxito!',
-    };
-  }
+  inFlightRequests.set(dedupKey, executionPromise);
+  return executionPromise;
 }
 
 export async function fetchAllSuggestions(): Promise<SuggestionRecord[]> {
@@ -126,9 +177,17 @@ export async function fetchAllSuggestions(): Promise<SuggestionRecord[]> {
       return locals;
     }
 
-    // Merge unique
+    // Merge unique: eliminate local items that already exist in remote data (by ID or matching text)
     const remoteIds = new Set(data.map((d: any) => d.id));
-    const uniqueLocals = locals.filter(l => !remoteIds.has(l.id));
+    const uniqueLocals = locals.filter(l => {
+      if (remoteIds.has(l.id)) return false;
+      const isAlreadyRemote = data.some(d => 
+        d.selected_text.trim() === l.selected_text?.trim() && 
+        d.suggestion.trim() === l.suggestion?.trim()
+      );
+      return !isAlreadyRemote;
+    });
+
     return [...data, ...uniqueLocals];
   } catch (e) {
     return locals;
@@ -168,4 +227,8 @@ CREATE POLICY "Permitir insercion publica de sugerencias"
   ON public.suggestions FOR INSERT
   TO anon, authenticated
   WITH CHECK (true);
+
+-- Indice unico opcional para blindar inserciones identicas simultaneas a nivel de PostgreSQL
+CREATE UNIQUE INDEX IF NOT EXISTS idx_suggestions_dedup
+  ON public.suggestions (md5(TRIM(selected_text)), md5(TRIM(suggestion)), COALESCE(TRIM(author_name), ''));
 `;

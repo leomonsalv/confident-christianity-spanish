@@ -34,6 +34,7 @@ export const TextSelectionPopover: React.FC<TextSelectionPopoverProps> = ({ onSu
   const [statusMessage, setStatusMessage] = useState<{ text: string; isRemote: boolean } | null>(null);
 
   const formRef = useRef<HTMLDivElement>(null);
+  const isSubmittingRef = useRef<boolean>(false);
 
   useEffect(() => {
     const handleMouseUp = () => {
@@ -116,6 +117,8 @@ export const TextSelectionPopover: React.FC<TextSelectionPopoverProps> = ({ onSu
   };
 
   const handleClose = () => {
+    isSubmittingRef.current = false;
+    setIsSubmitting(false);
     setIsFormOpen(false);
     setSelectionState(null);
     setSuggestionText('');
@@ -125,32 +128,42 @@ export const TextSelectionPopover: React.FC<TextSelectionPopoverProps> = ({ onSu
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Guard against simultaneous double-click or enter key presses
+    if (isSubmittingRef.current) return;
     if (!suggestionText.trim() || !selectionState) return;
 
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
-    if (authorName.trim()) {
-      localStorage.setItem('cc_author_name', authorName.trim());
+
+    try {
+      if (authorName.trim()) {
+        localStorage.setItem('cc_author_name', authorName.trim());
+      }
+
+      const res = await submitSuggestion({
+        selected_text: selectionState.text,
+        suggestion: suggestionText,
+        author_name: authorName,
+        category,
+        module_number: selectionState.moduleNumber,
+        section_id: selectionState.sectionId,
+      });
+
+      setIsSubmitting(false);
+      setStatusMessage({ text: res.message, isRemote: res.isRemote });
+
+      if (onSuggestionAdded) {
+        onSuggestionAdded();
+      }
+
+      setTimeout(() => {
+        handleClose();
+      }, 2200);
+    } catch (error) {
+      console.error('Error submitting suggestion:', error);
+      setIsSubmitting(false);
+      isSubmittingRef.current = false;
     }
-
-    const res = await submitSuggestion({
-      selected_text: selectionState.text,
-      suggestion: suggestionText,
-      author_name: authorName,
-      category,
-      module_number: selectionState.moduleNumber,
-      section_id: selectionState.sectionId,
-    });
-
-    setIsSubmitting(false);
-    setStatusMessage({ text: res.message, isRemote: res.isRemote });
-
-    if (onSuggestionAdded) {
-      onSuggestionAdded();
-    }
-
-    setTimeout(() => {
-      handleClose();
-    }, 2200);
   };
 
   if (!selectionState) return null;
