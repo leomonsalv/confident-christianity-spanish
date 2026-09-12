@@ -441,10 +441,10 @@ export const App: React.FC = () => {
         onClose={() => setIsTimerOpen(false)}
       />
 
-      {/* Supabase Text Selection Suggestion Popover */}
+      {/* Text Selection Suggestion Popover */}
       <TextSelectionPopover onSuggestionAdded={() => {}} />
 
-      {/* Supabase Community Suggestions Drawer */}
+      {/* Community Suggestions Drawer */}
       <SuggestionsDrawer
         isOpen={isSuggestionsOpen}
         onClose={() => setIsSuggestionsOpen(false)}

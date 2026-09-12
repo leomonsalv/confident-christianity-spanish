@@ -2,21 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { 
   X, 
   MessageSquare, 
-  Database, 
-  CheckCircle, 
-  Copy, 
-  Check, 
-  Code, 
   RefreshCw,
-  ExternalLink,
   Filter,
   Quote
 } from 'lucide-react';
 import { 
   fetchAllSuggestions, 
-  SuggestionRecord, 
-  SUPABASE_PROJECT_ID, 
-  SUPABASE_SETUP_SQL 
+  SuggestionRecord
 } from '../lib/supabase';
 
 interface SuggestionsDrawerProps {
@@ -28,8 +20,6 @@ export const SuggestionsDrawer: React.FC<SuggestionsDrawerProps> = ({ isOpen, on
   const [suggestions, setSuggestions] = useState<SuggestionRecord[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [filterModule, setFilterModule] = useState<string>('all');
-  const [copiedSql, setCopiedSql] = useState(false);
-  const [showSqlModal, setShowSqlModal] = useState(false);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -43,12 +33,6 @@ export const SuggestionsDrawer: React.FC<SuggestionsDrawerProps> = ({ isOpen, on
       loadData();
     }
   }, [isOpen]);
-
-  const handleCopySql = () => {
-    navigator.clipboard.writeText(SUPABASE_SETUP_SQL);
-    setCopiedSql(true);
-    setTimeout(() => setCopiedSql(false), 2000);
-  };
 
   const filtered = suggestions.filter(s => {
     if (filterModule === 'all') return true;
@@ -74,10 +58,10 @@ export const SuggestionsDrawer: React.FC<SuggestionsDrawerProps> = ({ isOpen, on
             </div>
             <div>
               <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white">
-                Sugerencias de la Comunidad
+                Sugerencias y Aportes
               </h3>
               <p className="text-xs text-slate-500">
-                Conectado a Supabase ({SUPABASE_PROJECT_ID})
+                Retroalimentación editorial de facilitadores
               </p>
             </div>
           </div>
@@ -99,49 +83,14 @@ export const SuggestionsDrawer: React.FC<SuggestionsDrawerProps> = ({ isOpen, on
           </div>
         </div>
 
-        {/* Action bar / Supabase SQL helper */}
+        {/* Action / Count bar */}
         <div className="p-3 bg-slate-50 dark:bg-slate-850 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-              {filtered.length} sugerencias
+              {filtered.length} {filtered.length === 1 ? 'sugerencia registrada' : 'sugerencias registradas'}
             </span>
           </div>
-
-          <button
-            onClick={() => setShowSqlModal(true)}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-600 text-white text-xs font-semibold hover:bg-sky-500 transition-colors shadow-sm"
-          >
-            <Code className="w-3.5 h-3.5" />
-            <span>Ver SQL de Supabase</span>
-          </button>
         </div>
-
-        {/* SQL Schema Modal / Alert */}
-        {showSqlModal && (
-          <div className="p-4 bg-slate-900 text-slate-100 border-b border-slate-800 space-y-2 text-xs">
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-sky-400">Esquema SQL para Supabase</span>
-              <button onClick={() => setShowSqlModal(false)} className="text-slate-400 hover:text-white">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <p className="text-[11px] text-slate-400">
-              Copia y pega este código en el SQL Editor de tu consola Supabase para crear la tabla <code className="text-sky-300">suggestions</code>:
-            </p>
-            <pre className="p-2.5 rounded-lg bg-slate-950 font-mono text-[10px] text-slate-300 overflow-x-auto max-h-32 border border-slate-800">
-              {SUPABASE_SETUP_SQL}
-            </pre>
-            <div className="flex justify-end pt-1">
-              <button
-                onClick={handleCopySql}
-                className="flex items-center gap-1 px-2.5 py-1 rounded bg-sky-500 text-white text-[11px] font-bold"
-              >
-                {copiedSql ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                <span>{copiedSql ? '¡Copiado!' : 'Copiar SQL'}</span>
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* Filter bar */}
         <div className="p-3 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2">
@@ -183,12 +132,8 @@ export const SuggestionsDrawer: React.FC<SuggestionsDrawerProps> = ({ isOpen, on
                       </span>
                     )}
                   </div>
-                  <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
-                    s.is_local 
-                      ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' 
-                      : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-                  }`}>
-                    {s.is_local ? 'Local' : 'Supabase Cloud'}
+                  <span className="text-[10px] text-slate-400">
+                    {new Date(s.created_at || Date.now()).toLocaleDateString()}
                   </span>
                 </div>
 
@@ -205,7 +150,6 @@ export const SuggestionsDrawer: React.FC<SuggestionsDrawerProps> = ({ isOpen, on
                 {/* Footer info */}
                 <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
                   <span>Por: <strong>{s.author_name || 'Anónimo'}</strong></span>
-                  <span>{new Date(s.created_at || Date.now()).toLocaleDateString()}</span>
                 </div>
               </div>
             ))

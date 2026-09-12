@@ -122,7 +122,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Community Suggestions Drawer Button */}
           <button
             onClick={onOpenSuggestions}
-            title="Ver sugerencias y comentarios (Supabase)"
+            title="Ver sugerencias y comentarios"
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-300 dark:hover:bg-emerald-900/60 transition-colors border border-emerald-200/80 dark:border-emerald-800/80"
           >
             <MessageSquarePlus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />

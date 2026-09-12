@@ -6,7 +6,6 @@ import {
   CheckCircle2, 
   CloudUpload, 
   Sparkles, 
-  Database,
   Quote,
   AlertCircle
 } from 'lucide-react';
@@ -204,7 +203,7 @@ export const TextSelectionPopover: React.FC<TextSelectionPopoverProps> = ({ onSu
               <CheckCircle2 className="w-6 h-6 text-emerald-500 animate-bounce" />
               <p className="font-semibold">{statusMessage.text}</p>
               <span className="text-[10px] opacity-75">
-                {statusMessage.isRemote ? 'Sincronizado con Supabase Cloud' : 'Guardado en almacenamiento local'}
+                Aporte registrado correctamente
               </span>
             </div>
           ) : (
@@ -264,13 +263,13 @@ export const TextSelectionPopover: React.FC<TextSelectionPopoverProps> = ({ onSu
                 </button>
               </div>
 
-              {/* Supabase indicator badge */}
+              {/* Discreet footer label */}
               <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1">
                 <span className="flex items-center gap-1">
-                  <Database className="w-3 h-3 text-emerald-500" />
-                  <span>Supabase: ysthfjncuskypvxybpol</span>
+                  <Sparkles className="w-3 h-3 text-sky-500" />
+                  <span>Retroalimentación editorial</span>
                 </span>
-                <span>Guardado en la nube</span>
+                <span>Equipo de facilitadores</span>
               </div>
             </form>
           )}

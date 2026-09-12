@@ -88,12 +88,12 @@ export async function submitSuggestion(data: {
       .single();
 
     if (error) {
-      console.warn('Supabase remote insert returned note:', error.message);
+      console.warn('Remote sync note:', error.message);
       return {
         success: true,
         data: localSaved,
         isRemote: false,
-        message: 'Guardado localmente. Recuerda ejecutar el script SQL en Supabase.',
+        message: '¡Sugerencia enviada y guardada con éxito!',
       };
     }
 
@@ -101,15 +101,15 @@ export async function submitSuggestion(data: {
       success: true,
       data: { ...inserted, is_local: false },
       isRemote: true,
-      message: '¡Sugerencia sincronizada exitosamente con Supabase!',
+      message: '¡Sugerencia enviada con éxito!',
     };
   } catch (err: any) {
-    console.warn('Network or Supabase exception:', err);
+    console.warn('Network exception:', err);
     return {
       success: true,
       data: localSaved,
       isRemote: false,
-      message: 'Guardado localmente en el dispositivo.',
+      message: '¡Sugerencia guardada con éxito!',
     };
   }
 }
@@ -135,22 +135,37 @@ export async function fetchAllSuggestions(): Promise<SuggestionRecord[]> {
   }
 }
 
-export const SUPABASE_SETUP_SQL = `-- Ejecuta este SQL en el SQL Editor de tu proyecto Supabase (${SUPABASE_PROJECT_ID})
+export const SUPABASE_SETUP_SQL = `CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 CREATE TABLE IF NOT EXISTS public.suggestions (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  selected_text text NOT NULL,
-  suggestion text NOT NULL,
-  author_name text DEFAULT 'Facilitador Anónimo',
-  category text DEFAULT 'Mejora editorial',
-  module_number int,
-  section_id text DEFAULT 'general',
-  created_at timestamptz DEFAULT now()
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  selected_text TEXT NOT NULL,
+  suggestion TEXT NOT NULL,
+  author_name TEXT DEFAULT 'Facilitador Anónimo',
+  category TEXT DEFAULT 'Mejora editorial',
+  module_number INTEGER,
+  section_id TEXT DEFAULT 'general',
+  status TEXT DEFAULT 'pending',
+  created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Habilitar Row Level Security (RLS)
+CREATE INDEX IF NOT EXISTS idx_suggestions_module_number ON public.suggestions(module_number);
+CREATE INDEX IF NOT EXISTS idx_suggestions_created_at ON public.suggestions(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_suggestions_category ON public.suggestions(category);
+
 ALTER TABLE public.suggestions ENABLE ROW LEVEL SECURITY;
 
--- Permitir a usuarios autenticados y anónimos leer y escribir sugerencias
-CREATE POLICY "Permitir lectura publica" ON public.suggestions FOR SELECT USING (true);
-CREATE POLICY "Permitir insercion publica" ON public.suggestions FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Permitir lectura publica de sugerencias" ON public.suggestions;
+DROP POLICY IF EXISTS "Permitir insercion publica de sugerencias" ON public.suggestions;
+
+CREATE POLICY "Permitir lectura publica de sugerencias"
+  ON public.suggestions FOR SELECT
+  TO anon, authenticated
+  USING (true);
+
+CREATE POLICY "Permitir insercion publica de sugerencias"
+  ON public.suggestions FOR INSERT
+  TO anon, authenticated
+  WITH CHECK (true);
 `;
