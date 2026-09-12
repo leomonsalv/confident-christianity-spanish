@@ -1,7 +1,6 @@
 import React from 'react';
 import { 
   Menu, 
-  Search, 
   Settings2, 
   Clock, 
   Headphones, 
@@ -20,7 +19,7 @@ interface NavbarProps {
   settings: ReaderSettings;
   onUpdateSettings: (newSettings: Partial<ReaderSettings>) => void;
   onOpenTOC: () => void;
-  onOpenSearch: () => void;
+  onOpenSearch?: () => void;
   onOpenSettings: () => void;
   onOpenTimer: () => void;
   onToggleAudio: () => void;
@@ -33,7 +32,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   settings,
   onUpdateSettings,
   onOpenTOC,
-  onOpenSearch,
   onOpenSettings,
   onOpenTimer,
   onToggleAudio,
@@ -119,27 +117,26 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </div>
 
-        {/* Right Actions */}
-        <div className="flex items-center gap-1 sm:gap-2">
-          {/* Search */}
+        {/* Right Actions - Simplified & Uncluttered Utility Toolbar */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Community Suggestions Drawer Button */}
           <button
-            onClick={onOpenSearch}
-            title="Buscar en la guía (Cmd+K)"
-            className="flex items-center gap-2 p-2 sm:px-3 sm:py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            onClick={onOpenSuggestions}
+            title="Ver sugerencias y comentarios (Supabase)"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-300 dark:hover:bg-emerald-900/60 transition-colors border border-emerald-200/80 dark:border-emerald-800/80"
           >
-            <Search className="w-4 h-4" />
-            <span className="hidden md:inline text-xs text-slate-500">Buscar...</span>
-            <kbd className="hidden md:inline text-[10px] bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-slate-500">⌘K</kbd>
+            <MessageSquarePlus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <span className="hidden sm:inline">Sugerencias</span>
           </button>
 
           {/* Session Timer Quick Access */}
           <button
             onClick={onOpenTimer}
             title="Cronómetro interactivo de sesión (60 min)"
-            className="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-sky-50 text-sky-700 hover:bg-sky-100 dark:bg-sky-950/60 dark:text-sky-300 dark:hover:bg-sky-900/60 transition-colors border border-sky-200 dark:border-sky-800"
+            className="flex items-center gap-1 p-2 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <Clock className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-            <span className="hidden sm:inline">Sesión 60'</span>
+            <span className="hidden md:inline">60'</span>
           </button>
 
           {/* Audio narration */}
@@ -155,15 +152,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Headphones className="w-4 h-4" />
           </button>
 
-          {/* Community Suggestions Drawer Button */}
-          <button
-            onClick={onOpenSuggestions}
-            title="Ver sugerencias y comentarios (Supabase)"
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-300 dark:hover:bg-emerald-900/60 transition-colors border border-emerald-200 dark:border-emerald-800"
-          >
-            <MessageSquarePlus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            <span className="hidden md:inline">Sugerencias</span>
-          </button>
+          {/* Subtle separator */}
+          <div className="h-4 w-px bg-slate-200 dark:bg-slate-700 mx-0.5" />
 
           {/* Theme switcher */}
           <button

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { ModuleItem } from '../data/guideContent';
 import { PARTE_D } from '../data/guideContent';
+import { DrPeterPresentation } from './DrPeterPresentation';
 
 interface ModuleCardProps {
   module: ModuleItem;
@@ -178,63 +179,12 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
         </p>
       </div>
 
-      {/* Lo que el Dr. Peter presenta */}
-      <div className="space-y-4">
-        <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <BookOpen className="w-5 h-5 text-sky-600 dark:text-sky-400" />
-          <span>Lo que el Dr. Peter presenta</span>
-        </h3>
-
-        <div className="text-sm sm:text-base text-slate-700 dark:text-slate-300 space-y-4 leading-relaxed whitespace-pre-line">
-          {module.whatDrPeterPresents}
-        </div>
-
-        {/* Custom Visual Diagrams / Tables */}
-        {module.visualData?.type === 'table' && (
-          <div className="my-6 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm">
-            <div className="p-3 bg-sky-100/70 dark:bg-sky-950/60 font-bold text-xs sm:text-sm text-sky-900 dark:text-sky-200">
-              {module.visualData.title}
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs sm:text-sm">
-                <thead className="bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-wider">
-                  <tr>
-                    {module.visualData.headers.map((h, i) => (
-                      <th key={i} className="p-3 font-semibold">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                  {module.visualData.rows.map((row, rIdx) => (
-                    <tr key={rIdx} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                      {row.map((cell, cIdx) => (
-                        <td key={cIdx} className={`p-3 ${cIdx > 0 ? 'font-mono font-semibold text-sky-700 dark:text-sky-300' : 'text-slate-800 dark:text-slate-200'}`}>
-                          {cell}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {module.visualData?.type === 'cards3' && (
-          <div className="grid sm:grid-cols-3 gap-3 my-6">
-            {module.visualData.cards.map((c, idx) => (
-              <div key={idx} className="p-4 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700/80 shadow-sm space-y-1">
-                <div className="font-bold text-sm text-slate-900 dark:text-white">
-                  {c.title}
-                </div>
-                <div className="text-xs font-mono font-bold text-sky-600 dark:text-sky-400">
-                  {c.ref}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      {/* Lo que el Dr. Peter presenta - Enhanced Rich Presentation */}
+      <DrPeterPresentation 
+        content={module.whatDrPeterPresents}
+        visualData={module.visualData}
+        moduleNumber={module.number}
+      />
 
       {/* Driver Alert / Terminology Note if present */}
       {module.driverAlert && (
