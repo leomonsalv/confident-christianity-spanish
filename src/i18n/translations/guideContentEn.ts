@@ -1,7 +1,7 @@
 // Confident Christianity: Facilitator's Guide (ICMDA / CMF)
 // Complete English translation dataset
 
-import { VisualData, ModuleItem } from '../data/guideContent';
+import { VisualData, ModuleItem } from '../../data/guideContent';
 
 export const GUIDE_METADATA_EN = {
   "title": "Facilitator's Guide",
