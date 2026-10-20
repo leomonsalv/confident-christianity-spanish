@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Globe, ChevronDown, Check, Sparkles } from 'lucide-react';
+import { Globe, ChevronDown, Check } from 'lucide-react';
 import { useI18n } from '../i18n/i18nContext';
 import { SUPPORTED_LANGUAGES, Language } from '../i18n/types';
 
@@ -72,7 +72,7 @@ export const LanguageDropdown: React.FC = () => {
         <div
           role="menu"
           aria-orientation="vertical"
-          className="absolute right-0 mt-2 w-60 origin-top-right rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xl shadow-slate-900/10 dark:shadow-black/40 p-1.5 z-50 focus:outline-none backdrop-blur-lg animate-in fade-in zoom-in-95 duration-100"
+          className="absolute right-0 mt-2 w-52 origin-top-right rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xl shadow-slate-900/10 dark:shadow-black/40 p-1.5 z-50 focus:outline-none backdrop-blur-lg animate-in fade-in zoom-in-95 duration-100"
         >
           {/* Header */}
           <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
@@ -119,21 +119,6 @@ export const LanguageDropdown: React.FC = () => {
                 </button>
               );
             })}
-          </div>
-
-          {/* Extensibility Footer / Info for Translate API */}
-          <div className="mt-1 pt-2 border-t border-slate-100 dark:border-slate-800/80 px-2.5 py-1.5 bg-slate-50/70 dark:bg-slate-950/40 rounded-xl">
-            <div className="flex items-start gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-              <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
-              <div className="flex flex-col leading-tight">
-                <span className="font-medium text-slate-700 dark:text-slate-300">
-                  {t('lang.autoDetect', 'Detectado del navegador')}
-                </span>
-                <span className="text-[10px] text-slate-400 dark:text-slate-400 mt-0.5">
-                  {t('lang.moreComing', 'Más idiomas próximamente')}
-                </span>
-              </div>
-            </div>
           </div>
         </div>
       )}
