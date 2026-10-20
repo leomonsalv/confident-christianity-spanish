@@ -8,17 +8,14 @@ import {
   ChevronUp, 
   Sparkles, 
   AlertTriangle, 
-  Share2, 
   MessageCircle, 
   HelpCircle, 
-  BookOpen, 
-  FileEdit,
-  ExternalLink
+  FileEdit
 } from 'lucide-react';
 import { ModuleItem } from '../data/guideContent';
-import { PARTE_D } from '../data/guideContent';
 import { DrPeterPresentation } from './DrPeterPresentation';
 import { UserRole } from '../types';
+import { useI18n } from '../i18n/i18nContext';
 
 interface ModuleCardProps {
   module: ModuleItem;
@@ -38,9 +35,11 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
   onPlayAudio,
   notes,
   onSaveNotes,
-  onJumpToVuelta,
   role = 'facilitador',
 }) => {
+  const { guideData, t } = useI18n();
+  const PARTE_D = guideData.PARTE_D;
+
   const isStudent = role === 'estudiante';
   const [copiedQuestions, setCopiedQuestions] = useState(false);
   const [copiedObjectionIdx, setCopiedObjectionIdx] = useState<number | null>(null);
@@ -49,10 +48,11 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
   const [showVuelta, setShowVuelta] = useState(false);
 
   // Find corresponding Vuelta from Parte D.1
-  const correspondingTurn = PARTE_D.d1.turns.find(t => t.moduleRef === module.number);
+  const correspondingTurn = PARTE_D.d1.turns.find(turn => turn.moduleRef === module.number);
 
   const handleCopyQuestions = () => {
-    const text = `*Preguntas de Discusión · Módulo ${module.number}: ${module.title}*\n\n` +
+    const headerTitle = t('module.discussionQuestions', 'Preguntas de Discusión');
+    const text = `*${headerTitle} · ${t('module.module', 'Módulo')} ${module.number}: ${module.title}*\n\n` +
       module.discussionQuestions.map((q, idx) => `${idx + 1}. ${q}`).join('\n\n');
     navigator.clipboard.writeText(text);
     setCopiedQuestions(true);
@@ -60,7 +60,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
   };
 
   const handleCopyObjection = (idx: number, obj: string, resp: string) => {
-    const text = `*Objeción:* ${obj}\n*Respuesta de facilitación:* ${resp}`;
+    const text = `*${t('module.objectionLabel', 'Objeción')}:* ${obj}\n*${t('module.responseLabel', 'Respuesta de facilitación')}:* ${resp}`;
     navigator.clipboard.writeText(text);
     setCopiedObjectionIdx(idx);
     setTimeout(() => setCopiedObjectionIdx(null), 2000);
@@ -86,10 +86,10 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
                 ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300' 
                 : 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300'
             }`}>
-              Módulo {module.number}
+              {t('module.module', 'Módulo')} {module.number}
             </span>
             <span className="text-xs text-slate-400">
-              Página {module.pageNumber}
+              {t('module.page', 'Página')} {module.pageNumber}
             </span>
           </div>
 
@@ -97,7 +97,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => onPlayAudio(module)}
-              title="Escuchar audio resumen"
+              title={t('module.listenAudio', 'Escuchar audio resumen')}
               className="p-2 rounded-xl text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               <Volume2 className="w-4 h-4" />
@@ -105,7 +105,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
 
             <button
               onClick={() => onToggleBookmark(module.number)}
-              title={isBookmarked ? 'Quitar marcador' : 'Guardar módulo'}
+              title={isBookmarked ? t('module.unbookmark', 'Quitar marcador') : t('module.bookmark', 'Guardar módulo')}
               className={`p-2 rounded-xl transition-colors ${
                 isBookmarked 
                   ? 'text-amber-500 bg-amber-50 dark:bg-amber-950/40' 
@@ -118,7 +118,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
             {!isStudent && (
               <button
                 onClick={() => setIsNotesOpen(!isNotesOpen)}
-                title="Mis notas de facilitador"
+                title={t('module.myNotes', 'Mis notas de facilitador')}
                 className={`p-2 rounded-xl transition-colors ${
                   notes.trim() 
                     ? 'text-sky-600 bg-sky-50 dark:bg-sky-950/40' 
@@ -137,7 +137,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
             {module.title}
           </h2>
           <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
-            {module.workbookChapter ? `Cuaderno: ${module.workbookChapter}` : 'Cuaderno: sin capítulo propio'}
+            {module.workbookChapter ? `${t('module.workbook', 'Cuaderno')}: ${module.workbookChapter}` : t('module.noWorkbookChapter', 'Cuaderno: sin capítulo propio')}
           </p>
         </div>
       </div>
@@ -148,20 +148,20 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
               <FileEdit className="w-3.5 h-3.5" />
-              <span>Notas privadas de preparación (se guardan localmente)</span>
+              <span>{t('module.privateNotes', 'Notas privadas de preparación (se guardan localmente)')}</span>
             </span>
             <button
               onClick={() => setIsNotesOpen(false)}
               className="text-xs text-slate-400 hover:text-slate-600"
             >
-              Cerrar
+              {t('module.close', 'Cerrar')}
             </button>
           </div>
           <textarea
             value={localNote}
             onChange={(e) => setLocalNote(e.target.value)}
             onBlur={handleSaveNote}
-            placeholder="Escribe tus reflexiones, preguntas de tu cohorte o ideas para romper el hielo..."
+            placeholder={t('module.notesPlaceholder', 'Escribe tus reflexiones, preguntas de tu cohorte o ideas para romper el hielo...')}
             className="w-full p-3 text-xs sm:text-sm rounded-xl border border-amber-200 dark:border-amber-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 min-h-[80px]"
           />
           <div className="flex justify-end">
@@ -169,7 +169,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
               onClick={handleSaveNote}
               className="px-3 py-1 rounded-lg bg-amber-600 text-white text-xs font-semibold hover:bg-amber-500 transition-colors"
             >
-              Guardar Nota
+              {t('module.saveNote', 'Guardar Nota')}
             </button>
           </div>
         </div>
@@ -178,7 +178,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
       {/* Objetivo Callout Box */}
       <div className="p-5 rounded-2xl bg-sky-50/90 dark:bg-sky-950/40 border-l-4 border-sky-600 dark:border-sky-500 shadow-sm space-y-1">
         <span className="text-[11px] font-bold uppercase tracking-wider text-sky-700 dark:text-sky-300">
-          Objetivo
+          {t('module.objective', 'Objetivo')}
         </span>
         <p className="text-sm sm:text-base font-semibold text-slate-900 dark:text-sky-100 leading-relaxed">
           {module.objective}
@@ -197,7 +197,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
         <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/90 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 text-xs sm:text-sm text-amber-950 dark:text-amber-100 space-y-1.5 shadow-sm">
           <div className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-300 text-xs uppercase tracking-wider">
             <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-            <span>Alerta de Conducción / Nota Clave</span>
+            <span>{t('module.driverAlert', 'Alerta de Conducción / Nota Clave')}</span>
           </div>
           <p className="leading-relaxed">
             {module.driverAlert}
@@ -210,7 +210,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
         <div className="p-5 sm:p-6 rounded-2xl bg-pink-50/70 dark:bg-pink-950/30 border-l-4 border-pink-700 dark:border-pink-500 space-y-1.5">
           <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-pink-800 dark:text-pink-300">
             <AlertTriangle className="w-4 h-4 text-pink-700 dark:text-pink-400" />
-            <span>Lo que no se puede recortar</span>
+            <span>{t('module.cannotCut', 'Lo que no se puede recortar')}</span>
           </div>
           <p className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-pink-100 leading-relaxed">
             {module.cannotCut}
@@ -224,7 +224,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
           <div className="flex items-center justify-between">
             <h4 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2">
               <MessageCircle className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-              <span>Preguntas de discusión</span>
+              <span>{t('module.discussionQuestions', 'Preguntas de discusión')}</span>
             </h4>
 
             <button
@@ -233,13 +233,13 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
             >
               {copiedQuestions ? (
                 <>
-                  <Check className="w-3 h-3 text-emerald-500" />
-                  <span className="text-emerald-600 dark:text-emerald-400">¡Copiado!</span>
+                  <Check className="w-3.5 h-3.5 text-emerald-500" />
+                  <span className="text-emerald-600 dark:text-emerald-400">{t('module.copied', '¡Copiado!')}</span>
                 </>
               ) : (
                 <>
-                  <Copy className="w-3 h-3" />
-                  <span>Copiar para WhatsApp/Zoom</span>
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>{t('module.copyQuestions', 'Copiar para WhatsApp/Zoom')}</span>
                 </>
               )}
             </button>
@@ -263,7 +263,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
         <div className="space-y-3">
           <h4 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2">
             <HelpCircle className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-            <span>Objeciones comunes en la sala</span>
+            <span>{t('module.commonObjections', 'Objeciones comunes en la sala')}</span>
           </h4>
 
           <div className="grid gap-3">
@@ -278,7 +278,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
                   </div>
                   <button
                     onClick={() => handleCopyObjection(oIdx, obj.objection, obj.response)}
-                    title="Copiar guion"
+                    title={t('module.copyScript', 'Copiar guion')}
                     className="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 shrink-0"
                   >
                     {copiedObjectionIdx === oIdx ? (
@@ -303,13 +303,13 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-purple-900 dark:text-purple-300 flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-              <span>Vuelta a Jesús correspondiente (Parte D.1 · Ítem {correspondingTurn.id})</span>
+              <span>{t('module.vueltaJesus', 'Vuelta a Jesús correspondiente')} ({t('module.partD1Item', 'Parte D.1 · Ítem')} {correspondingTurn.id})</span>
             </span>
             <button
               onClick={() => setShowVuelta(!showVuelta)}
               className="text-xs text-purple-700 dark:text-purple-300 font-semibold hover:underline flex items-center gap-1"
             >
-              {showVuelta ? 'Ocultar' : 'Ver guion de la Vuelta'}
+              {showVuelta ? t('module.hideVuelta', 'Ocultar') : t('module.showVuelta', 'Ver guion de la Vuelta')}
               {showVuelta ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             </button>
           </div>
@@ -320,7 +320,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
                 {correspondingTurn.script}
               </p>
               <div className="font-mono text-xs font-bold text-purple-700 dark:text-purple-300">
-                Referencias: {correspondingTurn.references}
+                {t('module.references', 'Referencias:')} {correspondingTurn.references}
               </div>
             </div>
           )}
@@ -330,7 +330,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
       {/* Footer Reference */}
       <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl text-xs text-slate-500 dark:text-slate-400 flex flex-wrap items-center justify-between gap-2 border border-slate-200/50 dark:border-slate-800/50">
         <div>
-          <strong>Cuaderno de trabajo:</strong> {module.workbookRef || 'Ver capítulo afín'}
+          <strong>{t('module.workbookRef', 'Cuaderno de trabajo:')}</strong> {module.workbookRef || t('module.seeRelatedChapter', 'Ver capítulo afín')}
         </div>
         {!isStudent && module.vueltaRef && (
           <div className="text-sky-600 dark:text-sky-400 font-semibold">

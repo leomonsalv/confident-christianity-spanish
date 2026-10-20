@@ -4,12 +4,11 @@ import {
   Send, 
   X, 
   CheckCircle2, 
-  CloudUpload, 
   Sparkles, 
-  Quote,
-  AlertCircle
+  Quote
 } from 'lucide-react';
 import { submitSuggestion } from '../lib/supabase';
+import { useI18n } from '../i18n/i18nContext';
 
 interface SelectionState {
   text: string;
@@ -25,6 +24,7 @@ interface TextSelectionPopoverProps {
 }
 
 export const TextSelectionPopover: React.FC<TextSelectionPopoverProps> = ({ onSuggestionAdded }) => {
+  const { t } = useI18n();
   const [selectionState, setSelectionState] = useState<SelectionState | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [suggestionText, setSuggestionText] = useState('');
@@ -128,7 +128,6 @@ export const TextSelectionPopover: React.FC<TextSelectionPopoverProps> = ({ onSu
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Guard against simultaneous double-click or enter key presses
     if (isSubmittingRef.current) return;
     if (!suggestionText.trim() || !selectionState) return;
 
@@ -168,6 +167,13 @@ export const TextSelectionPopover: React.FC<TextSelectionPopoverProps> = ({ onSu
 
   if (!selectionState) return null;
 
+  const categories = [
+    { id: 'Mejora editorial', label: t('popover.catEditorial', 'Mejora editorial') },
+    { id: 'Duda de facilitación', label: t('popover.catDoubt', 'Duda de facilitación') },
+    { id: 'Pregunta adicional', label: t('popover.catQuestion', 'Pregunta adicional') },
+    { id: 'Corrección de errata', label: t('popover.catErrata', 'Corrección de errata') },
+  ];
+
   return (
     <div 
       ref={formRef}
@@ -186,7 +192,7 @@ export const TextSelectionPopover: React.FC<TextSelectionPopoverProps> = ({ onSu
           className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-2xl hover:scale-105 active:scale-95 transition-all text-xs font-bold border border-slate-700 dark:border-slate-300 ring-4 ring-sky-500/20"
         >
           <MessageSquarePlus className="w-4 h-4 text-sky-400 dark:text-sky-600" />
-          <span>Añadir Sugerencia</span>
+          <span>{t('popover.addSuggestion', 'Añadir Sugerencia')}</span>
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
         </button>
       ) : (
@@ -197,11 +203,11 @@ export const TextSelectionPopover: React.FC<TextSelectionPopoverProps> = ({ onSu
             <div className="flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-sky-600 dark:text-sky-400" />
               <span className="font-bold text-xs text-slate-900 dark:text-white">
-                Sugerencia sobre el texto
+                {t('popover.title', 'Sugerencia sobre el texto')}
               </span>
               {selectionState.moduleNumber && (
                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300 font-semibold">
-                  Módulo {selectionState.moduleNumber}
+                  {t('module.module', 'Módulo')} {selectionState.moduleNumber}
                 </span>
               )}
             </div>
@@ -229,30 +235,25 @@ export const TextSelectionPopover: React.FC<TextSelectionPopoverProps> = ({ onSu
               <CheckCircle2 className="w-6 h-6 text-emerald-500 animate-bounce" />
               <p className="font-semibold">{statusMessage.text}</p>
               <span className="text-[10px] opacity-75">
-                Aporte registrado correctamente
+                {t('popover.successNote', 'Aporte registrado correctamente')}
               </span>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-3">
               {/* Category Pills */}
               <div className="flex flex-wrap gap-1">
-                {[
-                  'Mejora editorial', 
-                  'Duda de facilitación', 
-                  'Pregunta adicional', 
-                  'Corrección de errata'
-                ].map((cat) => (
+                {categories.map((cat) => (
                   <button
                     type="button"
-                    key={cat}
-                    onClick={() => setCategory(cat)}
+                    key={cat.id}
+                    onClick={() => setCategory(cat.id)}
                     className={`px-2 py-0.5 rounded-md text-[10px] font-semibold transition-all ${
-                      category === cat
+                      category === cat.id
                         ? 'bg-sky-600 text-white shadow-sm'
                         : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
                     }`}
                   >
-                    {cat}
+                    {cat.label}
                   </button>
                 ))}
               </div>
@@ -264,7 +265,7 @@ export const TextSelectionPopover: React.FC<TextSelectionPopoverProps> = ({ onSu
                   autoFocus
                   value={suggestionText}
                   onChange={(e) => setSuggestionText(e.target.value)}
-                  placeholder="Escribe tu propuesta, sugerencia o ajuste..."
+                  placeholder={t('popover.placeholder', 'Escribe tu propuesta, sugerencia o ajuste...')}
                   className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-850 text-slate-900 dark:text-white text-xs placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 min-h-[70px]"
                 />
               </div>
@@ -275,7 +276,7 @@ export const TextSelectionPopover: React.FC<TextSelectionPopoverProps> = ({ onSu
                   type="text"
                   value={authorName}
                   onChange={(e) => setAuthorName(e.target.value)}
-                  placeholder="Tu nombre o cohorte (opcional)"
+                  placeholder={t('popover.authorPlaceholder', 'Tu nombre o cohorte (opcional)')}
                   className="flex-1 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-850 text-slate-800 dark:text-slate-200 text-xs placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500"
                 />
 
@@ -285,7 +286,7 @@ export const TextSelectionPopover: React.FC<TextSelectionPopoverProps> = ({ onSu
                   className="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shadow-sky-600/20"
                 >
                   <Send className="w-3 h-3" />
-                  <span>{isSubmitting ? 'Guardando...' : 'Enviar'}</span>
+                  <span>{isSubmitting ? t('popover.saving', 'Guardando...') : t('popover.send', 'Enviar')}</span>
                 </button>
               </div>
 
@@ -293,9 +294,9 @@ export const TextSelectionPopover: React.FC<TextSelectionPopoverProps> = ({ onSu
               <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1">
                 <span className="flex items-center gap-1">
                   <Sparkles className="w-3 h-3 text-sky-500" />
-                  <span>Retroalimentación editorial</span>
+                  <span>{t('popover.feedbackLabel', 'Retroalimentación editorial')}</span>
                 </span>
-                <span>Equipo de facilitadores</span>
+                <span>{t('popover.teamLabel', 'Equipo de facilitadores')}</span>
               </div>
             </form>
           )}

@@ -7,12 +7,10 @@ import {
   Layers, 
   Compass, 
   FileText, 
-  CheckCircle2, 
-  ChevronRight,
   Sparkles
 } from 'lucide-react';
-import { MODULES_DATA, GUIDE_METADATA } from '../data/guideContent';
 import { UserRole } from '../types';
+import { useI18n } from '../i18n/i18nContext';
 
 interface SidebarTOCProps {
   isOpen: boolean;
@@ -31,6 +29,10 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
   bookmarkedModules,
   role = 'facilitador',
 }) => {
+  const { guideData, t } = useI18n();
+  const MODULES_DATA = guideData.MODULES_DATA;
+  const GUIDE_METADATA = guideData.GUIDE_METADATA;
+
   const isStudent = role === 'estudiante';
   const [filterQuery, setFilterQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'bookmarks'>('all');
@@ -70,15 +72,16 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
             </div>
             <div>
               <h2 className="font-bold text-slate-900 dark:text-white text-sm">
-                Tabla de Contenido
+                {t('toc.title', 'Tabla de Contenido')}
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {isStudent ? '20 Módulos de Estudio' : `${GUIDE_METADATA.title} · 32 Páginas`}
+                {isStudent ? t('studentHero.modulesCount', '20 Módulos de Estudio') : `${GUIDE_METADATA.title} · ${t('toc.subtitle', '32 Páginas')}`}
               </p>
             </div>
           </div>
           <button 
             onClick={onClose}
+            aria-label={t('module.close', 'Cerrar')}
             className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             <X className="w-5 h-5" />
@@ -91,7 +94,7 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
             <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
             <input 
               type="text" 
-              placeholder="Filtrar por título, número o tema..."
+              placeholder={t('toc.filterPlaceholder', 'Filtrar por título, número o tema...')}
               value={filterQuery}
               onChange={(e) => setFilterQuery(e.target.value)}
               className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500"
@@ -107,7 +110,7 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
                   : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              Todos los Módulos (20)
+              {t('toc.allModules', 'Todos los Módulos (20)')}
             </button>
             <button
               onClick={() => setActiveTab('bookmarks')}
@@ -118,7 +121,7 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
               }`}
             >
               <Bookmark className="w-3 h-3" />
-              Guardados ({bookmarkedModules.length})
+              {t('toc.saved', 'Guardados')} ({bookmarkedModules.length})
             </button>
           </div>
         </div>
@@ -128,7 +131,7 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
           {!isStudent && activeTab === 'all' && !filterQuery && (
             <div className="space-y-1">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-2">
-                Introducción & Guía
+                {t('toc.introSection', 'Introducción & Guía')}
               </span>
 
               <button
@@ -141,9 +144,9 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
               >
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-3.5 h-3.5 text-sky-500" />
-                  <span>Portada · Portada Oficial</span>
+                  <span>{t('toc.cover', 'Portada · Portada Oficial')}</span>
                 </div>
-                <span className="text-[10px] text-slate-400">Pág. 1</span>
+                <span className="text-[10px] text-slate-400">{t('toc.page', 'Pág.')} 1</span>
               </button>
 
               <button
@@ -156,9 +159,9 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
               >
                 <div className="flex items-center gap-2">
                   <FileText className="w-3.5 h-3.5 text-sky-500" />
-                  <span>Acerca de esta guía</span>
+                  <span>{t('toc.about', 'Acerca de esta guía')}</span>
                 </div>
-                <span className="text-[10px] text-slate-400">Pág. 2</span>
+                <span className="text-[10px] text-slate-400">{t('toc.page', 'Pág.')} 2</span>
               </button>
 
               <button
@@ -171,9 +174,9 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
               >
                 <div className="flex items-center gap-2">
                   <Layers className="w-3.5 h-3.5 text-sky-500" />
-                  <span>Parte A · El papel del facilitador</span>
+                  <span>{t('toc.partA', 'Parte A · El papel del facilitador')}</span>
                 </div>
-                <span className="text-[10px] text-slate-400">Pág. 4–5</span>
+                <span className="text-[10px] text-slate-400">{t('toc.page', 'Pág.')} 4–5</span>
               </button>
 
               <button
@@ -186,9 +189,9 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
               >
                 <div className="flex items-center gap-2">
                   <Compass className="w-3.5 h-3.5 text-sky-500" />
-                  <span>Parte B · Conducir la sesión (60')</span>
+                  <span>{t('toc.partB', "Parte B · Conducir la sesión (60')")}</span>
                 </div>
-                <span className="text-[10px] text-slate-400">Pág. 6</span>
+                <span className="text-[10px] text-slate-400">{t('toc.page', 'Pág.')} 6</span>
               </button>
 
               <button
@@ -201,9 +204,9 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
               >
                 <div className="flex items-center gap-2">
                   <BookOpen className="w-3.5 h-3.5 text-sky-500" />
-                  <span>Parte C · Estructura de los 20 módulos</span>
+                  <span>{t('toc.partC', 'Parte C · Estructura de los 20 módulos')}</span>
                 </div>
-                <span className="text-[10px] text-slate-400">Pág. 7</span>
+                <span className="text-[10px] text-slate-400">{t('toc.page', 'Pág.')} 7</span>
               </button>
             </div>
           )}
@@ -212,18 +215,18 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
           <div className="space-y-1">
             <div className="flex items-center justify-between px-2">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                {activeTab === 'bookmarks' ? 'Módulos Guardados' : 'Módulos 1 a 20'}
+                {activeTab === 'bookmarks' ? t('toc.saved', 'Módulos Guardados') : `${t('module.module', 'Módulos')} 1-20`}
               </span>
               <span className="text-[10px] text-slate-400">
-                {displayedModules.length} módulos
+                {displayedModules.length} {t('module.module', 'módulos')}
               </span>
             </div>
 
             {displayedModules.length === 0 ? (
               <div className="p-4 text-center text-xs text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
                 {activeTab === 'bookmarks' 
-                  ? 'No has guardado ningún módulo todavía. Haz clic en el icono de marcador en cualquier módulo para guardarlo aquí.' 
-                  : 'No se encontraron módulos con ese criterio.'}
+                  ? t('toc.noSaved', 'No has guardado ningún módulo todavía. Haz clic en el icono de marcador en cualquier módulo para guardarlo aquí.') 
+                  : t('toc.noResults', 'No se encontraron módulos con ese criterio.')}
               </div>
             ) : (
               displayedModules.map((m) => {
@@ -256,7 +259,7 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
                           {m.title}
                         </div>
                         <div className={`text-[10px] truncate ${isCurrent ? 'text-white/80' : 'text-slate-400'}`}>
-                          {m.workbookChapter || 'Charla & Diapositivas'}
+                          {m.workbookChapter || t('toc.talkSlides', 'Charla & Diapositivas')}
                         </div>
                       </div>
                     </div>
@@ -266,7 +269,7 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
                         <Bookmark className={`w-3 h-3 fill-current ${isCurrent ? 'text-white' : 'text-amber-500'}`} />
                       )}
                       <span className={`text-[10px] ${isCurrent ? 'text-white/70' : 'text-slate-400'}`}>
-                        P.{m.pageNumber}
+                        {t('toc.page', 'Pág.')}{m.pageNumber}
                       </span>
                     </div>
                   </button>
@@ -279,7 +282,7 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
           {!isStudent && activeTab === 'all' && !filterQuery && (
             <div className="space-y-1 pt-2 border-t border-slate-200 dark:border-slate-800">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-2">
-                Parte D · Referencias
+                {t('toc.partD', 'Parte D · Referencias y Herramientas')}
               </span>
 
               <button
@@ -290,8 +293,8 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
                     : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
-                <span>D.1 Dar la vuelta a las preguntas</span>
-                <span className="text-[10px] text-slate-400">Pág. 28</span>
+                <span>{t('toc.d1', 'D.1 Dar la vuelta a las preguntas')}</span>
+                <span className="text-[10px] text-slate-400">{t('toc.page', 'Pág.')} 28</span>
               </button>
 
               <button
@@ -302,8 +305,8 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
                     : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
-                <span>D.2 Directo a la yugular</span>
-                <span className="text-[10px] text-slate-400">Pág. 30</span>
+                <span>{t('toc.d2', 'D.2 Directo a la yugular')}</span>
+                <span className="text-[10px] text-slate-400">{t('toc.page', 'Pág.')} 30</span>
               </button>
 
               <button
@@ -314,8 +317,8 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
                     : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
-                <span>D.3 La escala de Engel (-10 a +3)</span>
-                <span className="text-[10px] text-slate-400">Pág. 30</span>
+                <span>{t('toc.d3', 'D.3 La escala de Engel (-10 a +3)')}</span>
+                <span className="text-[10px] text-slate-400">{t('toc.page', 'Pág.')} 30</span>
               </button>
 
               <button
@@ -326,8 +329,8 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
                     : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
-                <span>D.4 El esquema de John Chapman</span>
-                <span className="text-[10px] text-slate-400">Pág. 31</span>
+                <span>{t('toc.d4', 'D.4 El esquema de John Chapman')}</span>
+                <span className="text-[10px] text-slate-400">{t('toc.page', 'Pág.')} 31</span>
               </button>
 
               <button
@@ -338,8 +341,8 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
                     : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
-                <span>D.5 Notas editoriales</span>
-                <span className="text-[10px] text-slate-400">Pág. 32</span>
+                <span>{t('toc.d5', 'D.5 Notas editoriales')}</span>
+                <span className="text-[10px] text-slate-400">{t('toc.page', 'Pág.')} 32</span>
               </button>
             </div>
           )}
@@ -347,7 +350,7 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
 
         {/* Footer info */}
         <div className="p-3 bg-slate-50 dark:bg-slate-800/40 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 text-center">
-          CMF 2005 · Edición española corregida 2026
+          {t('toc.colophon', 'CMF 2005 · Edición corregida 2026')}
         </div>
       </div>
     </div>

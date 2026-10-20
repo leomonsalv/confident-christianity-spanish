@@ -9,14 +9,9 @@ import {
   AlertCircle, 
   Volume2, 
   VolumeX,
-  Users,
-  Video,
-  MessagesSquare,
-  MessageCircle,
-  Repeat,
   CheckCircle2
 } from 'lucide-react';
-import { PARTE_B } from '../data/guideContent';
+import { useI18n } from '../i18n/i18nContext';
 
 interface SessionTimerModalProps {
   isOpen: boolean;
@@ -24,13 +19,24 @@ interface SessionTimerModalProps {
 }
 
 export const SessionTimerModal: React.FC<SessionTimerModalProps> = ({ isOpen, onClose }) => {
+  const { guideData, t } = useI18n();
+  const PARTE_B = guideData.PARTE_B;
+
   const [currentBlockIndex, setCurrentBlockIndex] = useState(0);
   const [secondsRemaining, setSecondsRemaining] = useState(PARTE_B.schedule[0].minutes * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const timerRef = useRef<number | null>(null);
 
-  const currentBlock = PARTE_B.schedule[currentBlockIndex];
+  // If schedule updates due to language change, sync block duration if not running
+  useEffect(() => {
+    if (!isRunning) {
+      const activeScheduleItem = PARTE_B.schedule[currentBlockIndex] || PARTE_B.schedule[0];
+      setSecondsRemaining(activeScheduleItem.minutes * 60);
+    }
+  }, [PARTE_B, currentBlockIndex, isRunning]);
+
+  const currentBlock = PARTE_B.schedule[currentBlockIndex] || PARTE_B.schedule[0];
   const totalSecondsInBlock = currentBlock.minutes * 60;
   const progressPercent = ((totalSecondsInBlock - secondsRemaining) / totalSecondsInBlock) * 100;
 
@@ -79,7 +85,7 @@ export const SessionTimerModal: React.FC<SessionTimerModalProps> = ({ isOpen, on
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isRunning, currentBlockIndex, soundEnabled]);
+  }, [isRunning, currentBlockIndex, soundEnabled, PARTE_B]);
 
   const selectBlock = (index: number) => {
     setCurrentBlockIndex(index);
@@ -122,10 +128,10 @@ export const SessionTimerModal: React.FC<SessionTimerModalProps> = ({ isOpen, on
             </div>
             <div>
               <h3 className="font-bold text-slate-900 dark:text-white text-base">
-                Cronómetro de la Sesión (60 Minutos)
+                {t('timer.title', 'Cronómetro de la Sesión (60 Minutos)')}
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Estructura oficial del curso · Usted habla 10 de los 60 minutos
+                {t('timer.subtitle', 'Estructura oficial del curso · Usted habla 10 de los 60 minutos')}
               </p>
             </div>
           </div>
@@ -133,13 +139,15 @@ export const SessionTimerModal: React.FC<SessionTimerModalProps> = ({ isOpen, on
           <div className="flex items-center gap-1">
             <button
               onClick={() => setSoundEnabled(!soundEnabled)}
-              title={soundEnabled ? 'Sonido activado' : 'Sonido desactivado'}
+              title={soundEnabled ? t('timer.soundOn', 'Sonido activado') : t('timer.soundOff', 'Sonido desactivado')}
               className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
             >
               {soundEnabled ? <Volume2 className="w-5 h-5 text-sky-500" /> : <VolumeX className="w-5 h-5" />}
             </button>
+
             <button 
               onClick={onClose}
+              aria-label={t('module.close', 'Cerrar')}
               className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               <X className="w-5 h-5" />
@@ -151,7 +159,7 @@ export const SessionTimerModal: React.FC<SessionTimerModalProps> = ({ isOpen, on
         <div className="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-6 text-center space-y-4 border border-slate-100 dark:border-slate-800">
           <div className="flex items-center justify-center gap-2">
             <span className="px-3 py-1 rounded-full text-xs font-bold bg-sky-500 text-white">
-              Bloque {currentBlockIndex + 1} de {PARTE_B.schedule.length}: {currentBlock.time}
+              {t('timer.block', 'Bloque')} {currentBlockIndex + 1} {t('parteA.of', 'de')} {PARTE_B.schedule.length}: {currentBlock.time}
             </span>
           </div>
 
@@ -180,7 +188,7 @@ export const SessionTimerModal: React.FC<SessionTimerModalProps> = ({ isOpen, on
           <div className="flex items-center justify-center gap-3 pt-2">
             <button
               onClick={resetCurrentBlock}
-              title="Reiniciar este bloque"
+              title={t('timer.resetBlock', 'Reiniciar este bloque')}
               className="p-3 rounded-2xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all shadow-sm"
             >
               <RotateCcw className="w-5 h-5" />
@@ -197,12 +205,12 @@ export const SessionTimerModal: React.FC<SessionTimerModalProps> = ({ isOpen, on
               {isRunning ? (
                 <>
                   <Pause className="w-5 h-5 fill-current" />
-                  <span>Pausar</span>
+                  <span>{t('timer.pause', 'Pausar')}</span>
                 </>
               ) : (
                 <>
                   <Play className="w-5 h-5 fill-current" />
-                  <span>Iniciar Bloque</span>
+                  <span>{t('timer.startBlock', 'Iniciar Bloque')}</span>
                 </>
               )}
             </button>
@@ -210,7 +218,7 @@ export const SessionTimerModal: React.FC<SessionTimerModalProps> = ({ isOpen, on
             <button
               onClick={skipToNext}
               disabled={currentBlockIndex >= PARTE_B.schedule.length - 1}
-              title="Siguiente bloque"
+              title={t('timer.nextBlock', 'Siguiente bloque')}
               className="p-3 rounded-2xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all shadow-sm disabled:opacity-40"
             >
               <SkipForward className="w-5 h-5" />
@@ -221,7 +229,7 @@ export const SessionTimerModal: React.FC<SessionTimerModalProps> = ({ isOpen, on
         {/* Blocks Steps Timeline */}
         <div className="space-y-1.5">
           <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
-            Secuencia de la Sesión
+            {t('timer.sequence', 'Secuencia de la Sesión')}
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {PARTE_B.schedule.map((item, idx) => (
@@ -250,7 +258,7 @@ export const SessionTimerModal: React.FC<SessionTimerModalProps> = ({ isOpen, on
         <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-xs text-amber-800 dark:text-amber-300 flex items-start gap-2">
           <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
           <span>
-            <strong>Recordatorio:</strong> Las salas simultáneas tardan ~1 minuto en cerrarse tras la orden. Ciérrelas con antelación y mande un mensaje a la mitad.
+            <strong>{t('timer.reminderLabel', 'Recordatorio')}:</strong> {t('timer.reminder', 'Las salas simultáneas tardan ~1 minuto en cerrarse tras la orden. Ciérrelas con antelación y mande un mensaje a la mitad.')}
           </span>
         </div>
       </div>

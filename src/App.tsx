@@ -17,23 +17,20 @@ import { ParteDSection } from './components/ParteDSection';
 import { RoleSelectionModal } from './components/RoleSelectionModal';
 import { StudentHero } from './components/StudentHero';
 import { OnboardingTour } from './components/OnboardingTour';
-import { MODULES_DATA, ModuleItem } from './data/guideContent';
-import { ReaderSettings, ThemeMode, UserRole } from './types';
+import { ModuleItem } from './data/guideContent';
+import { ReaderSettings, UserRole } from './types';
+import { I18nProvider, useI18n } from './i18n/i18nContext';
 import { 
   ChevronLeft, 
   ChevronRight, 
   ArrowUp, 
-  Sparkles, 
-  Bookmark, 
-  BookOpen, 
-  Clock, 
-  RotateCw,
-  Search,
-  LayoutGrid,
-  ScrollText
+  LayoutGrid
 } from 'lucide-react';
 
-export const App: React.FC = () => {
+const AppContent: React.FC = () => {
+  const { guideData, language, t } = useI18n();
+  const MODULES_DATA = guideData.MODULES_DATA;
+
   // Reader Settings State
   const [settings, setSettings] = useState<ReaderSettings>(() => {
     const saved = localStorage.getItem('cc_reader_settings');
@@ -57,7 +54,6 @@ export const App: React.FC = () => {
     if (roleParam === 'estudiante' || roleParam === 'facilitador') {
       return roleParam;
     }
-    // When visiting root without ?role=, do not auto-assume a role
     return null;
   });
 
@@ -67,7 +63,6 @@ export const App: React.FC = () => {
     if (roleParam === 'estudiante' || roleParam === 'facilitador') {
       return false;
     }
-    // When entering the main link (http://localhost:5181/), ALWAYS show the bifurcación!
     return true;
   });
 
@@ -83,7 +78,6 @@ export const App: React.FC = () => {
     url.searchParams.set('role', newRole);
     window.history.replaceState({}, '', url.toString());
 
-    // When role is selected from the bifurcación, ALWAYS launch the onboarding tour!
     setTimeout(() => {
       setIsOnboardingOpen(true);
     }, 400);
@@ -143,7 +137,6 @@ export const App: React.FC = () => {
   // Save settings
   useEffect(() => {
     localStorage.setItem('cc_reader_settings', JSON.stringify(settings));
-    // Apply theme class to document
     document.documentElement.classList.remove('dark', 'theme-sepia');
     if (settings.theme === 'dark') {
       document.documentElement.classList.add('dark');
@@ -212,10 +205,10 @@ export const App: React.FC = () => {
     }
   };
 
-  // Audio text-to-speech helper
+  // Audio text-to-speech helper with bilingual voice support
   const handlePlayAudio = (module: ModuleItem) => {
     if (!('speechSynthesis' in window)) {
-      alert('Tu navegador no soporta lectura de audio.');
+      alert(t('audio.notSupported', 'Tu navegador no soporta lectura de audio.'));
       return;
     }
 
@@ -234,9 +227,13 @@ export const App: React.FC = () => {
     window.speechSynthesis.cancel();
     setAudioModule(module);
 
-    const textToRead = `Módulo ${module.number}: ${module.title}. Objetivo: ${module.objective}. Lo que el Doctor Peter presenta: ${module.whatDrPeterPresents}. Lo que no se puede recortar: ${module.cannotCut}`;
+    const isEn = language === 'en';
+    const textToRead = isEn
+      ? `Module ${module.number}: ${module.title}. Objective: ${module.objective}. What Dr. Peter presents: ${module.whatDrPeterPresents}. What cannot be cut: ${module.cannotCut}`
+      : `Módulo ${module.number}: ${module.title}. Objetivo: ${module.objective}. Lo que el Doctor Peter presenta: ${module.whatDrPeterPresents}. Lo que no se puede recortar: ${module.cannotCut}`;
+    
     const utterance = new SpeechSynthesisUtterance(textToRead);
-    utterance.lang = 'es-ES';
+    utterance.lang = isEn ? 'en-US' : 'es-ES';
     utterance.rate = 1.0;
 
     utterance.onend = () => {
@@ -278,6 +275,8 @@ export const App: React.FC = () => {
   const fontClass = settings.font === 'serif' ? 'font-reader-serif' : 'font-reader-sans';
   const sizeClass = `font-size-${settings.fontSize}`;
 
+  const currentModuleForChapter = MODULES_DATA[selectedModuleIdx] || MODULES_DATA[0];
+
   return (
     <div className={`min-h-screen ${fontClass} ${sizeClass} transition-colors duration-200`}>
       {/* Top sticky navbar */}
@@ -312,7 +311,7 @@ export const App: React.FC = () => {
                 onSwitchToFacilitator={() => handleSelectRole('facilitador')}
               />
 
-              {/* Modules 1 to 20 without facilitator clutter */}
+              {/* Modules 1 to 20 */}
               <div className="space-y-2">
                 {MODULES_DATA.map((mod) => (
                   <ModuleCard
@@ -346,7 +345,7 @@ export const App: React.FC = () => {
               />
               <ParteCSection />
 
-              {/* Modules 1 to 20 with full facilitator tools */}
+              {/* Modules 1 to 20 with facilitator tools */}
               <div className="space-y-2">
                 {MODULES_DATA.map((mod) => (
                   <ModuleCard
@@ -376,15 +375,15 @@ export const App: React.FC = () => {
                 className="flex items-center gap-1 text-xs font-semibold px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-750 text-slate-700 dark:text-slate-200 disabled:opacity-40 hover:bg-slate-200"
               >
                 <ChevronLeft className="w-4 h-4" />
-                <span className="hidden sm:inline">Anterior</span>
+                <span className="hidden sm:inline">{t('chapter.previous', 'Anterior')}</span>
               </button>
 
               <div className="text-center">
                 <span className="text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">
-                  Episodio {selectedModuleIdx + 1} de 20
+                  {t('chapter.episode', 'Episodio')} {selectedModuleIdx + 1} {t('parteA.of', 'de')} 20
                 </span>
                 <h3 className="text-base font-bold text-slate-900 dark:text-white truncate max-w-xs sm:max-w-md">
-                  {MODULES_DATA[selectedModuleIdx].title}
+                  {currentModuleForChapter.title}
                 </h3>
               </div>
 
@@ -393,27 +392,27 @@ export const App: React.FC = () => {
                 disabled={selectedModuleIdx === 19}
                 className="flex items-center gap-1 text-xs font-semibold px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-750 text-slate-700 dark:text-slate-200 disabled:opacity-40 hover:bg-slate-200"
               >
-                <span className="hidden sm:inline">Siguiente</span>
+                <span className="hidden sm:inline">{t('chapter.next', 'Siguiente')}</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
 
             {/* Active Module Card */}
             <ModuleCard
-              module={MODULES_DATA[selectedModuleIdx]}
+              module={currentModuleForChapter}
               role={userRole || 'facilitador'}
-              isBookmarked={bookmarkedModules.includes(MODULES_DATA[selectedModuleIdx].number)}
+              isBookmarked={bookmarkedModules.includes(currentModuleForChapter.number)}
               onToggleBookmark={handleToggleBookmark}
               onPlayAudio={handlePlayAudio}
-              notes={facilitatorNotes[MODULES_DATA[selectedModuleIdx].number] || ''}
+              notes={facilitatorNotes[currentModuleForChapter.number] || ''}
               onSaveNotes={handleSaveNotes}
             />
 
             {/* Bottom Episode Switcher Grid */}
             <div className="p-6 bg-slate-50 dark:bg-slate-850/60 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-3">
               <div className="flex justify-between items-center text-xs font-bold text-slate-500 uppercase tracking-wider">
-                <span>Ir al Módulo</span>
-                <span>20 Módulos</span>
+                <span>{t('chapter.goToModule', 'Ir al Módulo')}</span>
+                <span>{t('chapter.allModulesCount', '20 Módulos')}</span>
               </div>
               <div className="grid grid-cols-4 sm:grid-cols-10 gap-2">
                 {MODULES_DATA.map((m, idx) => (
@@ -438,15 +437,15 @@ export const App: React.FC = () => {
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">
                 <LayoutGrid className="w-4 h-4" />
-                <span>{userRole === 'estudiante' ? 'Vista Rápida de Módulos' : 'Vista Rápida para Facilitadores en Sesión'}</span>
+                <span>{userRole === 'estudiante' ? t('cards.studentQuickView', 'Vista Rápida de Módulos') : t('cards.facilitatorQuickView', 'Vista Rápida para Facilitadores en Sesión')}</span>
               </div>
               <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">
-                Cuadrícula de los 20 Módulos
+                {t('cards.gridTitle', 'Cuadrícula de los 20 Módulos')}
               </h2>
               <p className="text-sm text-slate-500">
                 {userRole === 'estudiante' 
-                  ? 'Resumen del Objetivo de cada módulo para repaso ágil.' 
-                  : 'Resumen ejecutivo con el Objetivo y "Lo que no se puede recortar" de cada módulo para consulta inmediata durante reuniones.'}
+                  ? t('cards.studentGridDesc', 'Resumen del Objetivo de cada módulo para repaso ágil.') 
+                  : t('cards.facilitatorGridDesc', 'Resumen ejecutivo con el Objetivo y "Lo que no se puede recortar" de cada módulo para consulta inmediata durante reuniones.')}
               </p>
             </div>
 
@@ -459,10 +458,10 @@ export const App: React.FC = () => {
                   <div className="space-y-2.5">
                     <div className="flex items-center justify-between">
                       <span className="px-2.5 py-1 rounded-xl text-xs font-bold bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300">
-                        Módulo {mod.number}
+                        {t('module.module', 'Módulo')} {mod.number}
                       </span>
                       <span className="text-xs text-slate-400">
-                        P.{mod.pageNumber}
+                        {t('toc.page', 'Pág.')}{mod.pageNumber}
                       </span>
                     </div>
 
@@ -471,12 +470,12 @@ export const App: React.FC = () => {
                     </h3>
 
                     <div className="p-3 rounded-xl bg-sky-50/70 dark:bg-sky-950/30 border-l-2 border-sky-600 text-xs text-slate-700 dark:text-sky-200">
-                      <strong>Objetivo:</strong> {mod.objective}
+                      <strong>{t('cards.objectiveLabel', 'Objetivo:')}</strong> {mod.objective}
                     </div>
 
                     {userRole !== 'estudiante' && (
                       <div className="p-3 rounded-xl bg-pink-50/70 dark:bg-pink-950/30 border-l-2 border-pink-600 text-xs text-slate-700 dark:text-pink-200">
-                        <strong>No recortar:</strong> {mod.cannotCut}
+                        <strong>{t('cards.cannotCutLabel', 'No recortar:')}</strong> {mod.cannotCut}
                       </div>
                     )}
                   </div>
@@ -488,7 +487,7 @@ export const App: React.FC = () => {
                     }}
                     className="w-full mt-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-750 hover:bg-sky-600 hover:text-white text-slate-700 dark:text-slate-200 text-xs font-semibold transition-all text-center"
                   >
-                    Ver módulo completo →
+                    {t('cards.viewFullModule', 'Ver módulo completo →')}
                   </button>
                 </div>
               ))}
@@ -501,7 +500,7 @@ export const App: React.FC = () => {
       {progress > 10 && (
         <button
           onClick={scrollToTop}
-          title="Volver al inicio"
+          title={t('nav.backToTop', 'Volver al inicio')}
           className="fixed bottom-6 right-6 z-30 p-3 rounded-2xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-xl border border-slate-200 dark:border-slate-700 hover:bg-sky-50 dark:hover:bg-slate-700 transition-all hover:scale-110"
         >
           <ArrowUp className="w-5 h-5" />
@@ -574,6 +573,14 @@ export const App: React.FC = () => {
         onClose={() => setIsSuggestionsOpen(false)}
       />
     </div>
+  );
+};
+
+export const App: React.FC = () => {
+  return (
+    <I18nProvider>
+      <AppContent />
+    </I18nProvider>
   );
 };
 

@@ -1,17 +1,20 @@
 import React from 'react';
 import { Info, BookMarked, HelpCircle, FileCheck, AlertTriangle } from 'lucide-react';
-import { ABOUT_SECTION } from '../data/guideContent';
+import { useI18n } from '../i18n/i18nContext';
 
 export const AboutSection: React.FC = () => {
+  const { guideData, t } = useI18n();
+  const ABOUT_SECTION = guideData.ABOUT_SECTION;
+
   return (
     <section id="acerca" className="pt-12 pb-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto space-y-8">
       {/* Header bar */}
       <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
         <span className="text-xs font-bold tracking-wider uppercase text-slate-400">
-          Página 2 · Introducción
+          {t('about.pageHeader', 'Página 2 · Introducción')}
         </span>
         <span className="text-xs font-semibold px-2 py-0.5 rounded bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300">
-          Acerca de esta guía
+          {t('about.badge', 'Acerca de esta guía')}
         </span>
       </div>
 

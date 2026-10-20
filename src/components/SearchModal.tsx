@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, X, BookOpen, HelpCircle, ArrowRight, CornerDownLeft } from 'lucide-react';
-import { MODULES_DATA, PARTE_D, PARTE_A, PARTE_B } from '../data/guideContent';
+import { Search, X, ArrowRight } from 'lucide-react';
 import { UserRole } from '../types';
+import { useI18n } from '../i18n/i18nContext';
 
 interface SearchResult {
   id: string;
@@ -24,6 +24,9 @@ export const SearchModal: React.FC<SearchModalProps> = ({
   onSelectResult,
   role = 'facilitador',
 }) => {
+  const { guideData, language, t } = useI18n();
+  const { MODULES_DATA, PARTE_D, PARTE_A, PARTE_B } = guideData;
+
   const isStudent = role === 'estudiante';
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -43,7 +46,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         if (isOpen) onClose();
-        else onSelectResult(''); // open
+        else onSelectResult('');
       }
       if (e.key === 'Escape' && isOpen) {
         onClose();
@@ -61,6 +64,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
     }
 
     const found: SearchResult[] = [];
+    const moduleWord = t('module.module', 'Módulo');
 
     // Search in modules
     MODULES_DATA.forEach((m) => {
@@ -69,9 +73,9 @@ export const SearchModal: React.FC<SearchModalProps> = ({
         found.push({
           id: `modulo-${m.number}`,
           type: 'module',
-          title: `Módulo ${m.number}: ${m.title}`,
+          title: `${moduleWord} ${m.number}: ${m.title}`,
           snippet: m.objective,
-          badge: `Módulo ${m.number}`
+          badge: `${moduleWord} ${m.number}`
         });
       }
 
@@ -83,9 +87,9 @@ export const SearchModal: React.FC<SearchModalProps> = ({
         found.push({
           id: `modulo-${m.number}`,
           type: 'module',
-          title: `Módulo ${m.number} · Presentación`,
+          title: `${moduleWord} ${m.number} · ${t('search.presentation', 'Presentación')}`,
           snippet: snippet,
-          badge: `Módulo ${m.number}`
+          badge: `${moduleWord} ${m.number}`
         });
       }
 
@@ -96,9 +100,9 @@ export const SearchModal: React.FC<SearchModalProps> = ({
             found.push({
               id: `modulo-${m.number}`,
               type: 'objection',
-              title: `Objeción: ${obj.objection}`,
+              title: `${t('module.objectionLabel', 'Objeción')}: ${obj.objection}`,
               snippet: obj.response,
-              badge: `Módulo ${m.number} · Objeción`
+              badge: `${moduleWord} ${m.number} · ${t('module.objectionLabel', 'Objeción')}`
             });
           }
         });
@@ -110,9 +114,9 @@ export const SearchModal: React.FC<SearchModalProps> = ({
           found.push({
             id: `modulo-${m.number}`,
             type: 'question',
-            title: `Pregunta de discusión`,
+            title: t('module.discussionQuestions', 'Pregunta de discusión'),
             snippet: dq,
-            badge: `Módulo ${m.number}`
+            badge: `${moduleWord} ${m.number}`
           });
         }
       });
@@ -121,14 +125,14 @@ export const SearchModal: React.FC<SearchModalProps> = ({
     // Facilitator-only reference sections
     if (!isStudent) {
       // Search in Parte D Reference
-      PARTE_D.d1.turns.forEach((t) => {
-        if (t.question.toLowerCase().includes(q) || t.script.toLowerCase().includes(q)) {
+      PARTE_D.d1.turns.forEach((turn) => {
+        if (turn.question.toLowerCase().includes(q) || turn.script.toLowerCase().includes(q)) {
           found.push({
             id: 'parte-d-1',
             type: 'reference',
-            title: `Vuelta D.1: ${t.question}`,
-            snippet: t.script,
-            badge: `Referencia D.1`
+            title: `D.1: ${turn.question}`,
+            snippet: turn.script,
+            badge: `D.1`
           });
         }
       });
@@ -138,29 +142,29 @@ export const SearchModal: React.FC<SearchModalProps> = ({
           found.push({
             id: 'parte-d-4',
             type: 'reference',
-            title: `Esquema de Chapman: ${h.tag}`,
+            title: `D.4: ${h.tag}`,
             snippet: h.content,
-            badge: `Referencia D.4`
+            badge: `D.4`
           });
         }
       });
 
       // Search in Parte A and B
-      if (PARTE_A.a2.goldenRule.quote.toLowerCase().includes(q) || 'investigar'.includes(q) || 'apologetica'.includes(q)) {
+      if (PARTE_A.a2.goldenRule.quote.toLowerCase().includes(q) || 'investigar'.includes(q) || 'research'.includes(q) || 'apologetica'.includes(q)) {
         found.push({
           id: 'parte-a',
           type: 'guide',
-          title: 'Regla de oro del facilitador (A.2)',
+          title: PARTE_A.a2.title,
           snippet: PARTE_A.a2.goldenRule.quote,
           badge: 'Parte A'
         });
       }
 
-      if (q.includes('tiempo') || q.includes('cronometro') || q.includes('sesion') || q.includes('sala') || q.includes('resumen')) {
+      if (q.includes('tiempo') || q.includes('time') || q.includes('cronometro') || q.includes('sesion') || q.includes('session') || q.includes('sala') || q.includes('breakout')) {
         found.push({
           id: 'parte-b',
           type: 'guide',
-          title: 'Sesión estándar de una hora (60 minutos)',
+          title: PARTE_B.title,
           snippet: PARTE_B.corePrinciple,
           badge: 'Parte B'
         });
@@ -168,7 +172,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
     }
 
     setResults(found.slice(0, 15));
-  }, [query]);
+  }, [query, MODULES_DATA, PARTE_D, PARTE_A, PARTE_B, isStudent, t]);
 
   if (!isOpen) return null;
 
@@ -176,6 +180,10 @@ export const SearchModal: React.FC<SearchModalProps> = ({
     onSelectResult(id);
     onClose();
   };
+
+  const sampleTags = language === 'en'
+    ? ['Worldview', 'Engel Scale', 'Breakout rooms', 'Chapman', 'Resurrection', 'Suffering', 'Jugular']
+    : ['Cosmovisión', 'Escala de Engel', 'Salas simultáneas', 'Chapman', 'Resurrección', 'Sufrimiento', 'Yugular'];
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-16 sm:pt-24">
@@ -192,7 +200,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
           <input
             ref={inputRef}
             type="text"
-            placeholder="Buscar por conceptos, objeciones, citas, módulos (ej: cosmovisión, Chapman, salas)..."
+            placeholder={t('search.placeholder', 'Buscar por conceptos, objeciones, citas, módulos...')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="w-full bg-transparent text-sm sm:text-base text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none"
@@ -214,15 +222,15 @@ export const SearchModal: React.FC<SearchModalProps> = ({
         <div className="flex-1 overflow-y-auto p-2 space-y-1">
           {query.trim().length >= 2 && results.length === 0 && (
             <div className="p-8 text-center text-slate-400 text-sm">
-              No se encontraron coincidencias para "{query}".
+              {t('search.noResults', 'No se encontraron coincidencias para')} "{query}".
             </div>
           )}
 
           {query.trim().length < 2 && (
             <div className="p-8 text-center text-xs text-slate-400 space-y-2">
-              <p>Escribe al menos 2 letras para buscar en los 20 módulos y herramientas.</p>
+              <p>{t('search.hint', 'Escribe al menos 2 letras para buscar en los 20 módulos y herramientas.')}</p>
               <div className="flex flex-wrap gap-1.5 justify-center pt-2">
-                {['Cosmovisión', 'Escala de Engel', 'Salas simultáneas', 'Chapman', 'Resurrección', 'Sufrimiento', 'Yugular'].map(tag => (
+                {sampleTags.map(tag => (
                   <button
                     key={tag}
                     onClick={() => setQuery(tag)}
@@ -264,8 +272,8 @@ export const SearchModal: React.FC<SearchModalProps> = ({
 
         {/* Footer */}
         <div className="p-3 bg-slate-50 dark:bg-slate-800/40 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 flex items-center justify-between">
-          <span>Navega con enter y escape</span>
-          <span>{results.length} coincidencias</span>
+          <span>{t('search.navigate', 'Navega con enter y escape')}</span>
+          <span>{results.length} {t('search.matches', 'coincidencias')}</span>
         </div>
       </div>
     </div>

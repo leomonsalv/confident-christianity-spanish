@@ -10,11 +10,11 @@ import {
   Sun,
   Moon,
   Coffee,
-  MessageSquarePlus,
-  GraduationCap,
-  Users
+  MessageSquarePlus
 } from 'lucide-react';
 import { ReaderSettings, ThemeMode, ReaderMode, UserRole } from '../types';
+import { useI18n } from '../i18n/i18nContext';
+import { LanguageDropdown } from './LanguageDropdown';
 
 interface NavbarProps {
   progress: number;
@@ -43,16 +43,12 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenSuggestions,
   role = 'facilitador',
 }) => {
+  const { t } = useI18n();
+
   const toggleTheme = () => {
     const themeCycle: ThemeMode[] = ['light', 'sepia', 'dark'];
     const nextIndex = (themeCycle.indexOf(settings.theme) + 1) % themeCycle.length;
     onUpdateSettings({ theme: themeCycle[nextIndex] });
-  };
-
-  const cycleReaderMode = () => {
-    const modes: ReaderMode[] = ['continuous', 'chapter', 'cards'];
-    const nextIndex = (modes.indexOf(settings.readerMode) + 1) % modes.length;
-    onUpdateSettings({ readerMode: modes[nextIndex] });
   };
 
   return (
@@ -62,7 +58,8 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={onOpenTOC}
-            aria-label="Abrir tabla de contenido"
+            aria-label={t('nav.openMenu', 'Abrir tabla de contenido')}
+            title={t('nav.openMenu', 'Abrir tabla de contenido')}
             className="p-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500"
           >
             <Menu className="w-5 h-5" />
@@ -74,10 +71,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             </span>
             <div className="truncate cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
               <h1 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate">
-                Cristianismo con Confianza
+                {t('nav.brandTitle', 'Cristianismo con Confianza')}
               </h1>
               <p className="hidden md:block text-xs text-slate-500 dark:text-slate-400 truncate">
-                {role === 'estudiante' ? '20 Módulos de Estudio & Reflexión' : 'Guía del Facilitador · Los 20 módulos'}
+                {role === 'estudiante' ? t('nav.studentSubtitle', '20 Módulos de Estudio & Reflexión') : t('nav.facilitatorSubtitle', 'Guía del Facilitador · Los 20 módulos')}
               </p>
             </div>
           </div>
@@ -94,7 +91,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <ScrollText className="w-3.5 h-3.5" />
-            <span>Lectura Continua</span>
+            <span>{t('nav.continuous', 'Lectura Continua')}</span>
           </button>
 
           <button
@@ -106,7 +103,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <BookOpen className="w-3.5 h-3.5" />
-            <span>Por Módulo</span>
+            <span>{t('nav.byModule', 'Por Módulo')}</span>
           </button>
 
           <button
@@ -119,27 +116,27 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <LayoutGrid className="w-3.5 h-3.5" />
-            <span>Tarjetas Rápidas</span>
+            <span>{t('nav.quickCards', 'Tarjetas Rápidas')}</span>
           </button>
         </div>
 
-        {/* Right Actions - Simplified & Uncluttered Utility Toolbar */}
+        {/* Right Actions - Utility Toolbar */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Community Suggestions Drawer Button */}
           <button
             onClick={onOpenSuggestions}
-            title="Ver sugerencias y comentarios"
+            title={t('nav.suggestions', 'Ver sugerencias y comentarios')}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-300 dark:hover:bg-emerald-900/60 transition-colors border border-emerald-200/80 dark:border-emerald-800/80"
           >
             <MessageSquarePlus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            <span className="hidden sm:inline">Sugerencias</span>
+            <span className="hidden sm:inline">{t('nav.suggestions', 'Sugerencias')}</span>
           </button>
 
           {/* Session Timer Quick Access (only for Facilitators) */}
           {role !== 'estudiante' && (
             <button
               onClick={onOpenTimer}
-              title="Cronómetro interactivo de sesión (60 min)"
+              title={t('nav.sessionTimer', "Cronómetro interactivo de sesión (60 min)")}
               className="flex items-center gap-1 p-2 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               <Clock className="w-4 h-4 text-sky-600 dark:text-sky-400" />
@@ -151,7 +148,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="tour-audio-button"
             onClick={onToggleAudio}
-            title={isAudioPlaying ? 'Pausar audio lector' : 'Escuchar resumen (Audio)'}
+            title={isAudioPlaying ? t('audio.pause', 'Pausar audio lector') : t('audio.play', 'Escuchar resumen (Audio)')}
             className={`p-2 rounded-xl transition-colors ${
               isAudioPlaying 
                 ? 'bg-emerald-500 text-white animate-pulse' 
@@ -164,10 +161,15 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Subtle separator */}
           <div className="h-4 w-px bg-slate-200 dark:bg-slate-700 mx-0.5" />
 
+          {/* Interactive Language Dropdown */}
+          <div id="tour-language-dropdown">
+            <LanguageDropdown />
+          </div>
+
           {/* Theme switcher */}
           <button
             onClick={toggleTheme}
-            title={`Tema actual: ${settings.theme}`}
+            title={`${t('nav.theme', 'Tema')}: ${settings.theme}`}
             className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             {settings.theme === 'light' && <Sun className="w-4 h-4 text-amber-500" />}
@@ -178,7 +180,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Reader settings */}
           <button
             onClick={onOpenSettings}
-            title="Ajustes de lectura y tipografía"
+            title={t('nav.settings', 'Ajustes de lectura y tipografía')}
             className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <Settings2 className="w-4 h-4" />

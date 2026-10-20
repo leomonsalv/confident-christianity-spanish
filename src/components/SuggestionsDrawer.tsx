@@ -10,6 +10,7 @@ import {
   fetchAllSuggestions, 
   SuggestionRecord
 } from '../lib/supabase';
+import { useI18n } from '../i18n/i18nContext';
 
 interface SuggestionsDrawerProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ interface SuggestionsDrawerProps {
 }
 
 export const SuggestionsDrawer: React.FC<SuggestionsDrawerProps> = ({ isOpen, onClose }) => {
+  const { t } = useI18n();
   const [suggestions, setSuggestions] = useState<SuggestionRecord[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [filterModule, setFilterModule] = useState<string>('all');
@@ -58,10 +60,10 @@ export const SuggestionsDrawer: React.FC<SuggestionsDrawerProps> = ({ isOpen, on
             </div>
             <div>
               <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white">
-                Sugerencias y Aportes
+                {t('suggestions.title', 'Sugerencias y Aportes')}
               </h3>
               <p className="text-xs text-slate-500">
-                Retroalimentación editorial de facilitadores
+                {t('suggestions.subtitle', 'Retroalimentación editorial de facilitadores')}
               </p>
             </div>
           </div>
@@ -69,13 +71,15 @@ export const SuggestionsDrawer: React.FC<SuggestionsDrawerProps> = ({ isOpen, on
           <div className="flex items-center gap-1">
             <button
               onClick={loadData}
-              title="Refrescar sugerencias"
+              title={t('suggestions.refresh', 'Refrescar sugerencias')}
+              aria-label={t('suggestions.refresh', 'Refrescar sugerencias')}
               className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
             </button>
             <button 
               onClick={onClose}
+              aria-label={t('module.close', 'Cerrar')}
               className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
             >
               <X className="w-5 h-5" />
@@ -87,7 +91,7 @@ export const SuggestionsDrawer: React.FC<SuggestionsDrawerProps> = ({ isOpen, on
         <div className="p-3 bg-slate-50 dark:bg-slate-850 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-              {filtered.length} {filtered.length === 1 ? 'sugerencia registrada' : 'sugerencias registradas'}
+              {filtered.length} {filtered.length === 1 ? t('suggestions.oneRegistered', 'sugerencia registrada') : t('suggestions.manyRegistered', 'sugerencias registradas')}
             </span>
           </div>
         </div>
@@ -100,9 +104,9 @@ export const SuggestionsDrawer: React.FC<SuggestionsDrawerProps> = ({ isOpen, on
             onChange={(e) => setFilterModule(e.target.value)}
             className="w-full text-xs p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200"
           >
-            <option value="all">Todos los módulos y secciones</option>
+            <option value="all">{t('suggestions.allModules', 'Todos los módulos y secciones')}</option>
             {Array.from({ length: 20 }, (_, i) => i + 1).map(n => (
-              <option key={n} value={n.toString()}>Módulo {n}</option>
+              <option key={n} value={n.toString()}>{t('module.module', 'Módulo')} {n}</option>
             ))}
           </select>
         </div>
@@ -112,8 +116,8 @@ export const SuggestionsDrawer: React.FC<SuggestionsDrawerProps> = ({ isOpen, on
           {filtered.length === 0 ? (
             <div className="p-8 text-center text-xs text-slate-400 space-y-2">
               <Quote className="w-8 h-8 mx-auto text-slate-300 dark:text-slate-700" />
-              <p className="font-semibold text-slate-600 dark:text-slate-300">No hay sugerencias en esta vista.</p>
-              <p>Subraya cualquier texto en el documento y haz clic en "Añadir Sugerencia" para enviar la primera.</p>
+              <p className="font-semibold text-slate-600 dark:text-slate-300">{t('suggestions.noSuggestions', 'No hay sugerencias en esta vista.')}</p>
+              <p>{t('suggestions.howTo', 'Subraya cualquier texto en el documento y haz clic en "Añadir Sugerencia" para enviar la primera.')}</p>
             </div>
           ) : (
             filtered.map((s, idx) => (
@@ -124,11 +128,11 @@ export const SuggestionsDrawer: React.FC<SuggestionsDrawerProps> = ({ isOpen, on
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5">
                     <span className="font-bold px-2 py-0.5 rounded bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300 text-[10px]">
-                      {s.category || 'Sugerencia'}
+                      {s.category || t('suggestions.badge', 'Sugerencia')}
                     </span>
                     {s.module_number && (
                       <span className="text-[10px] text-slate-500 font-semibold">
-                        Módulo {s.module_number}
+                        {t('module.module', 'Módulo')} {s.module_number}
                       </span>
                     )}
                   </div>
@@ -149,7 +153,7 @@ export const SuggestionsDrawer: React.FC<SuggestionsDrawerProps> = ({ isOpen, on
 
                 {/* Footer info */}
                 <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
-                  <span>Por: <strong>{s.author_name || 'Anónimo'}</strong></span>
+                  <span>{t('suggestions.by', 'Por:')} <strong>{s.author_name || t('suggestions.anonymous', 'Anónimo')}</strong></span>
                 </div>
               </div>
             ))

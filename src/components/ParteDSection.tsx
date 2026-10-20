@@ -6,15 +6,16 @@ import {
   TrendingUp, 
   BookMarked, 
   FileText, 
-  ChevronRight, 
   Quote, 
-  AlertCircle,
   Copy,
   Check
 } from 'lucide-react';
-import { PARTE_D } from '../data/guideContent';
+import { useI18n } from '../i18n/i18nContext';
 
 export const ParteDSection: React.FC = () => {
+  const { guideData, t } = useI18n();
+  const PARTE_D = guideData.PARTE_D;
+
   const [selectedEngelStep, setSelectedEngelStep] = useState(0); // 0 corresponds to -10
   const [copiedTurnId, setCopiedTurnId] = useState<number | null>(null);
   const [activeQuestionStep, setActiveQuestionStep] = useState<number>(0);
@@ -25,7 +26,7 @@ export const ParteDSection: React.FC = () => {
     setTimeout(() => setCopiedTurnId(null), 2000);
   };
 
-  const currentEngel = PARTE_D.d3.steps[selectedEngelStep];
+  const currentEngel = PARTE_D.d3.steps[selectedEngelStep] || PARTE_D.d3.steps[0];
 
   return (
     <section id="parte-d" className="pt-16 pb-24 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto space-y-16">
@@ -33,7 +34,7 @@ export const ParteDSection: React.FC = () => {
       <div className="space-y-2 border-b border-slate-200 dark:border-slate-800 pb-4">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">
           <span className="w-2 h-2 rounded-full bg-sky-500" />
-          <span>Páginas 28–32 · Herramientas Clave</span>
+          <span>{t('parteD.pageHeader', 'Páginas 28–32 · Herramientas Clave')}</span>
         </div>
         <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
           {PARTE_D.title}
@@ -63,50 +64,50 @@ export const ParteDSection: React.FC = () => {
 
         {/* 7 Turns Cards */}
         <div className="grid gap-4">
-          {PARTE_D.d1.turns.map((t) => (
+          {PARTE_D.d1.turns.map((tItem) => (
             <div 
-              key={t.id}
+              key={tItem.id}
               className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3 reader-panel"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2.5">
                   <span className="w-7 h-7 rounded-xl bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 font-bold text-xs flex items-center justify-center shrink-0">
-                    {t.id}
+                    {tItem.id}
                   </span>
                   <h4 className="font-bold text-base text-slate-900 dark:text-white">
-                    {t.question}
+                    {tItem.question}
                   </h4>
                 </div>
 
                 <button
-                  onClick={() => handleCopyScript(t.id, t.script)}
-                  title="Copiar guion palabra por palabra"
+                  onClick={() => handleCopyScript(tItem.id, tItem.script)}
+                  title={t('parteD.copyTitle', 'Copiar guion palabra por palabra')}
                   className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-sky-100 dark:hover:bg-sky-900 transition-colors shrink-0"
                 >
-                  {copiedTurnId === t.id ? (
+                  {copiedTurnId === tItem.id ? (
                     <>
                       <Check className="w-3.5 h-3.5 text-emerald-500" />
-                      <span className="text-emerald-600">¡Copiado!</span>
+                      <span className="text-emerald-600">{t('parteD.copied', '¡Copiado!')}</span>
                     </>
                   ) : (
                     <>
                       <Copy className="w-3.5 h-3.5" />
-                      <span>Copiar</span>
+                      <span>{t('parteD.copy', 'Copiar')}</span>
                     </>
                   )}
                 </button>
               </div>
 
               <blockquote className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed italic pl-4 border-l-2 border-purple-400 dark:border-purple-600">
-                {t.script}
+                {tItem.script}
               </blockquote>
 
               <div className="flex items-center justify-between text-xs pt-1">
                 <span className="font-mono text-purple-700 dark:text-purple-400 font-bold">
-                  {t.references}
+                  {tItem.references}
                 </span>
                 <span className="text-slate-400">
-                  Módulo afín: #{t.moduleRef}
+                  {t('parteD.relatedModule', 'Módulo afín: #')}{tItem.moduleRef}
                 </span>
               </div>
             </div>
@@ -130,7 +131,7 @@ export const ParteDSection: React.FC = () => {
         <div className="p-6 rounded-3xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              Pregunta {activeQuestionStep + 1} de {PARTE_D.d2.questions.length}
+              {t('parteD.question', 'Pregunta')} {activeQuestionStep + 1} {t('parteD.of', 'de')} {PARTE_D.d2.questions.length}
             </span>
             <div className="flex gap-1">
               <button
@@ -138,14 +139,14 @@ export const ParteDSection: React.FC = () => {
                 disabled={activeQuestionStep === 0}
                 className="px-2 py-1 rounded text-xs bg-slate-100 dark:bg-slate-700 disabled:opacity-40"
               >
-                Anterior
+                {t('parteD.prev', 'Anterior')}
               </button>
               <button
                 onClick={() => setActiveQuestionStep(Math.min(PARTE_D.d2.questions.length - 1, activeQuestionStep + 1))}
                 disabled={activeQuestionStep === PARTE_D.d2.questions.length - 1}
                 className="px-2 py-1 rounded text-xs bg-sky-600 text-white disabled:opacity-40 font-semibold"
               >
-                Siguiente
+                {t('parteD.next', 'Siguiente')}
               </button>
             </div>
           </div>
@@ -193,7 +194,7 @@ export const ParteDSection: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-700/60 pb-4">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                Puntaje en la Escala
+                {t('parteD.scaleScore', 'Puntaje en la Escala')}
               </span>
               <div className="text-3xl font-black font-mono text-emerald-600 dark:text-emerald-400">
                 {currentEngel.score}
@@ -214,9 +215,9 @@ export const ParteDSection: React.FC = () => {
               className="w-full accent-emerald-500 cursor-pointer"
             />
             <div className="flex justify-between text-[10px] font-mono text-slate-400">
-              <span>-10 (Ignorancia)</span>
-              <span className="font-bold text-emerald-600">0 (Regeneración)</span>
-              <span>+3 (Multiplicación)</span>
+              <span>{t('parteD.ignorance', '-10 (Ignorancia)')}</span>
+              <span className="font-bold text-emerald-600">{t('parteD.regeneration', '0 (Regeneración)')}</span>
+              <span>{t('parteD.multiplication', '+3 (Multiplicación)')}</span>
             </div>
           </div>
 

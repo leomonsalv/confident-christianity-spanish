@@ -2,17 +2,13 @@ import React from 'react';
 import { 
   Users, 
   GraduationCap, 
-  Clock, 
   Sparkles, 
-  ShieldCheck, 
-  BookOpen, 
   CheckCircle2, 
   ArrowRight, 
-  X,
-  Compass,
-  Headphones
+  X
 } from 'lucide-react';
 import { UserRole } from '../types';
+import { useI18n } from '../i18n/i18nContext';
 
 interface RoleSelectionModalProps {
   isOpen: boolean;
@@ -27,6 +23,8 @@ export const RoleSelectionModal: React.FC<RoleSelectionModalProps> = ({
   onSelectRole,
   onClose,
 }) => {
+  const { t } = useI18n();
+
   if (!isOpen) return null;
 
   const canClose = Boolean(currentRole && onClose);
@@ -49,7 +47,7 @@ export const RoleSelectionModal: React.FC<RoleSelectionModalProps> = ({
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors z-20"
-            aria-label="Cerrar modal de selección"
+            aria-label={t('module.close', 'Cerrar modal de selección')}
           >
             <X className="w-5 h-5" />
           </button>
@@ -60,15 +58,15 @@ export const RoleSelectionModal: React.FC<RoleSelectionModalProps> = ({
           <div className="text-center max-w-xl mx-auto space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-sky-100 dark:bg-sky-950/80 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
               <Sparkles className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
-              <span>Cristianismo con Confianza · CMF & ICMDA</span>
+              <span>{t('nav.brandTitle', 'Cristianismo con Confianza')} · CMF & ICMDA</span>
             </div>
 
             <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              ¿Cómo deseas ingresar hoy?
+              {t('role.modalTitle', '¿Cómo deseas ingresar hoy?')}
             </h2>
 
             <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
-              Selecciona tu perfil para adaptar la plataforma a tus necesidades. Podrás cambiar de vista cuando quieras.
+              {t('role.modalSubtitle', 'Selecciona tu perfil para adaptar la plataforma a tus necesidades. Podrás cambiar de vista cuando quieras.')}
             </p>
           </div>
 
@@ -86,7 +84,7 @@ export const RoleSelectionModal: React.FC<RoleSelectionModalProps> = ({
               {currentRole === 'facilitador' && (
                 <div className="absolute top-4 right-4 flex items-center gap-1 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-950/80 px-2.5 py-1 rounded-full">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Perfil actual</span>
+                  <span>{t('role.currentProfile', 'Perfil actual')}</span>
                 </div>
               )}
 
@@ -98,35 +96,35 @@ export const RoleSelectionModal: React.FC<RoleSelectionModalProps> = ({
                   </div>
                   <div>
                     <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-                      Líder / Conductor
+                      {t('role.facilitatorTag', 'Líder / Conductor')}
                     </span>
                     <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-                      Soy Facilitador
+                      {t('role.facilitatorTitle', 'Soy Facilitador')}
                     </h3>
                   </div>
                 </div>
 
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                  Para quienes lideran, moderan y gestionan las sesiones de grupo. Acceso a la metodología integral de conducción y herramientas en vivo.
+                  {t('role.facilitatorDesc', 'Para quienes lideran, moderan y gestionan las sesiones de grupo. Acceso a la metodología integral de conducción y herramientas en vivo.')}
                 </p>
 
                 {/* Features List */}
                 <div className="space-y-2.5 pt-2">
                   <div className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-200">
                     <CheckCircle2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
-                    <span><strong>Guía oficial completa:</strong> Partes A, B, C y D (referencias).</span>
+                    <span>{t('role.facilitatorF1', 'Guía oficial completa: Partes A, B, C y D (referencias).')}</span>
                   </div>
                   <div className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-200">
                     <CheckCircle2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
-                    <span><strong>Herramientas de sala:</strong> Cronómetro interactivo de 60', tiempos y pausas.</span>
+                    <span>{t('role.facilitatorF2', "Herramientas de sala: Cronómetro interactivo de 60', tiempos y pausas.")}</span>
                   </div>
                   <div className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-200">
                     <CheckCircle2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
-                    <span><strong>Pedagogía:</strong> Alertas clave, "Lo que no se puede recortar" y notas privadas.</span>
+                    <span>{t('role.facilitatorF3', 'Pedagogía: Alertas clave, "Lo que no se puede recortar" y notas privadas.')}</span>
                   </div>
                   <div className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-200">
                     <CheckCircle2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
-                    <span><strong>Gestión de objeciones:</strong> Respuestas de sala preparadas y Vuelta a Jesús.</span>
+                    <span>{t('role.facilitatorF4', 'Gestión de objeciones: Respuestas de sala preparadas y Vuelta a Jesús.')}</span>
                   </div>
                 </div>
               </div>
@@ -137,7 +135,7 @@ export const RoleSelectionModal: React.FC<RoleSelectionModalProps> = ({
                   type="button"
                   className="w-full py-3 px-4 rounded-xl font-bold text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center gap-2 shadow-md shadow-indigo-600/20 transition-all group-hover:gap-3"
                 >
-                  <span>Entrar como Facilitador</span>
+                  <span>{t('role.enterFacilitator', 'Entrar como Facilitador')}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -155,7 +153,7 @@ export const RoleSelectionModal: React.FC<RoleSelectionModalProps> = ({
               {currentRole === 'estudiante' && (
                 <div className="absolute top-4 right-4 flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-2.5 py-1 rounded-full">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Perfil actual</span>
+                  <span>{t('role.currentProfile', 'Perfil actual')}</span>
                 </div>
               )}
 
@@ -167,35 +165,35 @@ export const RoleSelectionModal: React.FC<RoleSelectionModalProps> = ({
                   </div>
                   <div>
                     <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                      Participante / Estudio
+                      {t('role.studentTag', 'Participante / Estudio')}
                     </span>
                     <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-                      Soy Estudiante
+                      {t('role.studentTitle', 'Soy Estudiante')}
                     </h3>
                   </div>
                 </div>
 
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                  Para quienes participan en el curso y desean estudiar el contenido de forma clara, directa y sin distracciones administrativas.
+                  {t('role.studentDesc', 'Para quienes participan en el curso y desean estudiar el contenido de forma clara, directa y sin distracciones administrativas.')}
                 </p>
 
                 {/* Features List */}
                 <div className="space-y-2.5 pt-2">
                   <div className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-200">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>Los 20 Módulos de estudio:</strong> Objetivos claros y aprendizaje modular.</span>
+                    <span>{t('role.studentF1', 'Los 20 Módulos de estudio: Objetivos claros y aprendizaje modular.')}</span>
                   </div>
                   <div className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-200">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>Contenido visual del Dr. Peter Saunders:</strong> Diagramas y exposiciones.</span>
+                    <span>{t('role.studentF2', 'Contenido visual del Dr. Peter Saunders: Diagramas y exposiciones.')}</span>
                   </div>
                   <div className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-200">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>Preguntas de reflexión:</strong> Para estudio personal o diálogo en equipo.</span>
+                    <span>{t('role.studentF3', 'Preguntas de reflexión: Para estudio personal o diálogo en equipo.')}</span>
                   </div>
                   <div className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-200">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>Experiencia limpia:</strong> Sin alertas de moderador ni sobrecarga técnica.</span>
+                    <span>{t('role.studentF4', 'Experiencia limpia: Sin alertas de moderador ni sobrecarga técnica.')}</span>
                   </div>
                 </div>
               </div>
@@ -206,7 +204,7 @@ export const RoleSelectionModal: React.FC<RoleSelectionModalProps> = ({
                   type="button"
                   className="w-full py-3 px-4 rounded-xl font-bold text-xs sm:text-sm bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 transition-all group-hover:gap-3"
                 >
-                  <span>Entrar como Estudiante</span>
+                  <span>{t('role.enterStudent', 'Entrar como Estudiante')}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -216,7 +214,7 @@ export const RoleSelectionModal: React.FC<RoleSelectionModalProps> = ({
           {/* Footer Note */}
           <div className="pt-2 text-center border-t border-slate-200 dark:border-slate-800">
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              💡 Tu selección adapta la plataforma: los estudiantes ven los módulos directamente y los facilitadores tienen acceso a la guía de conducción completa.
+              {t('role.footerNote', '💡 Tu selección adapta la plataforma: los estudiantes ven los módulos directamente y los facilitadores tienen acceso a la guía de conducción completa.')}
             </p>
           </div>
         </div>

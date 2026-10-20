@@ -1,15 +1,18 @@
 import React from 'react';
-import { BookOpen, Layers, HelpCircle, AlertCircle, Sparkles } from 'lucide-react';
-import { PARTE_C_INTRO } from '../data/guideContent';
+import { BookOpen, Layers, AlertCircle } from 'lucide-react';
+import { useI18n } from '../i18n/i18nContext';
 
 export const ParteCSection: React.FC = () => {
+  const { guideData, t } = useI18n();
+  const PARTE_C_INTRO = guideData.PARTE_C_INTRO;
+
   return (
     <section id="parte-c-intro" className="pt-12 pb-10 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto space-y-8">
       {/* Chapter header */}
       <div className="space-y-2 border-b border-slate-200 dark:border-slate-800 pb-4">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">
           <span className="w-2 h-2 rounded-full bg-sky-500" />
-          <span>Página 7 · Panorama General</span>
+          <span>{t('parteC.pageHeader', 'Página 7 · Panorama General')}</span>
         </div>
         <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
           {PARTE_C_INTRO.title}
@@ -46,7 +49,7 @@ export const ParteCSection: React.FC = () => {
       <div className="p-6 rounded-3xl bg-slate-50 dark:bg-slate-850/60 border border-slate-200 dark:border-slate-800 space-y-4">
         <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
           <Layers className="w-5 h-5 text-sky-600 dark:text-sky-400" />
-          <span>Cómo leer un módulo en esta guía</span>
+          <span>{t('parteC.howToRead', 'Cómo leer un módulo en esta guía')}</span>
         </h3>
 
         <div className="grid sm:grid-cols-2 gap-3">
@@ -69,7 +72,7 @@ export const ParteCSection: React.FC = () => {
         <div className="p-4 rounded-xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/80 text-xs text-amber-900 dark:text-amber-200 space-y-1">
           <div className="font-bold flex items-center gap-1.5">
             <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-            <span>Nota de nomenclatura & Alertas de conducción</span>
+            <span>{t('parteC.nomenclatureAlert', 'Nota de nomenclatura & Alertas de conducción')}</span>
           </div>
           <p className="leading-relaxed">
             {PARTE_C_INTRO.notes}

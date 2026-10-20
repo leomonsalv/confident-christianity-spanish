@@ -1,20 +1,15 @@
 import React, { useState } from 'react';
 import { 
-  Users, 
   CheckCircle, 
-  ShieldAlert, 
-  Calendar, 
-  HeartHandshake, 
-  Wifi, 
   Quote, 
-  AlertOctagon,
   Bell,
-  Sparkles,
-  ArrowRight
+  Sparkles
 } from 'lucide-react';
-import { PARTE_A } from '../data/guideContent';
+import { useI18n } from '../i18n/i18nContext';
 
 export const ParteASection: React.FC = () => {
+  const { guideData, t } = useI18n();
+  const PARTE_A = guideData.PARTE_A;
   const [checkedItems, setCheckedItems] = useState<number[]>([]);
 
   const toggleCheck = (idx: number) => {
@@ -29,7 +24,7 @@ export const ParteASection: React.FC = () => {
       <div className="space-y-2 border-b border-slate-200 dark:border-slate-800 pb-4">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">
           <span className="w-2 h-2 rounded-full bg-sky-500" />
-          <span>Páginas 4–5 · Fundamentos</span>
+          <span>{t('parteA.pageHeader', 'Páginas 4–5 · Fundamentos')}</span>
         </div>
         <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
           {PARTE_A.title}
@@ -46,14 +41,14 @@ export const ParteASection: React.FC = () => {
             <span className="w-7 h-7 rounded-lg bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300 flex items-center justify-center text-xs font-bold">
               A.1
             </span>
-            <span>Qué se espera de usted</span>
+            <span>{PARTE_A.a1.title}</span>
           </h3>
           <span className="text-xs text-slate-400">
-            {checkedItems.length} de {PARTE_A.a1.requirements.length} verificados
+            {checkedItems.length} {t('parteA.of', 'de')} {PARTE_A.a1.requirements.length} {t('parteA.verified', 'verificados')}
           </span>
         </div>
         <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
-          {PARTE_A.a1.description} Haz clic para autoevaluar tu preparación:
+          {PARTE_A.a1.description}
         </p>
 
         <div className="space-y-2.5">
@@ -96,7 +91,7 @@ export const ParteASection: React.FC = () => {
           <span className="w-7 h-7 rounded-lg bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300 flex items-center justify-center text-xs font-bold">
             A.2
           </span>
-          <span>Qué no necesita ser</span>
+          <span>{PARTE_A.a2.title}</span>
         </h3>
         
         <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
@@ -108,7 +103,7 @@ export const ParteASection: React.FC = () => {
           <Quote className="w-16 h-16 text-white/10 absolute -top-2 -right-2 pointer-events-none" />
           <div className="flex items-center gap-2 text-sky-200 text-xs font-bold tracking-wider uppercase">
             <Sparkles className="w-4 h-4" />
-            <span>Respuesta oficial ante preguntas difíciles</span>
+            <span>{t('parteA.officialAnswer', 'Respuesta oficial ante preguntas difíciles')}</span>
           </div>
           <blockquote className="text-base sm:text-lg font-bold leading-snug">
             {PARTE_A.a2.goldenRule.quote}
@@ -125,7 +120,7 @@ export const ParteASection: React.FC = () => {
           <span className="w-7 h-7 rounded-lg bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 flex items-center justify-center text-xs font-bold">
             A.3
           </span>
-          <span>Las tres cosas que salen mal</span>
+          <span>{PARTE_A.a3.title}</span>
         </h3>
 
         <div className="grid sm:grid-cols-3 gap-4">
@@ -154,7 +149,7 @@ export const ParteASection: React.FC = () => {
           <span className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 flex items-center justify-center text-xs font-bold">
             A.4
           </span>
-          <span>La mitad del trabajo fuera de la sesión</span>
+          <span>{PARTE_A.a4.title}</span>
         </h3>
 
         <div className="grid sm:grid-cols-2 gap-4">

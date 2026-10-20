@@ -1,6 +1,7 @@
 import React from 'react';
-import { X, Sun, Moon, Coffee, Type, Sliders, Play, Square } from 'lucide-react';
-import { ReaderSettings, ThemeMode, FontFamily, FontSize, ReaderMode } from '../types';
+import { X, Sun, Moon, Coffee, Sliders, Play, Square } from 'lucide-react';
+import { ReaderSettings, FontFamily, FontSize } from '../types';
+import { useI18n } from '../i18n/i18nContext';
 
 interface ReaderSettingsModalProps {
   isOpen: boolean;
@@ -15,6 +16,8 @@ export const ReaderSettingsModal: React.FC<ReaderSettingsModalProps> = ({
   settings,
   onUpdateSettings,
 }) => {
+  const { t } = useI18n();
+
   if (!isOpen) return null;
 
   return (
@@ -30,11 +33,12 @@ export const ReaderSettingsModal: React.FC<ReaderSettingsModalProps> = ({
           <div className="flex items-center gap-2">
             <Sliders className="w-5 h-5 text-sky-600 dark:text-sky-400" />
             <h3 className="font-bold text-slate-900 dark:text-white text-base">
-              Ajustes de Lectura
+              {t('settings.title', 'Ajustes de Lectura')}
             </h3>
           </div>
           <button 
             onClick={onClose}
+            aria-label={t('module.close', 'Cerrar')}
             className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             <X className="w-5 h-5" />
@@ -44,7 +48,7 @@ export const ReaderSettingsModal: React.FC<ReaderSettingsModalProps> = ({
         {/* Themes */}
         <div className="space-y-2">
           <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-            Tema Visual
+            {t('settings.theme', 'Tema Visual')}
           </label>
           <div className="grid grid-cols-3 gap-2">
             <button
@@ -56,7 +60,7 @@ export const ReaderSettingsModal: React.FC<ReaderSettingsModalProps> = ({
               }`}
             >
               <Sun className="w-5 h-5 text-amber-500" />
-              <span className="text-xs">Blanco</span>
+              <span className="text-xs">{t('settings.themeLight', 'Blanco')}</span>
             </button>
 
             <button
@@ -68,7 +72,7 @@ export const ReaderSettingsModal: React.FC<ReaderSettingsModalProps> = ({
               }`}
             >
               <Coffee className="w-5 h-5 text-amber-700" />
-              <span className="text-xs">Sepia</span>
+              <span className="text-xs">{t('settings.themeSepia', 'Sepia')}</span>
             </button>
 
             <button
@@ -80,7 +84,7 @@ export const ReaderSettingsModal: React.FC<ReaderSettingsModalProps> = ({
               }`}
             >
               <Moon className="w-5 h-5 text-sky-400" />
-              <span className="text-xs">Oscuro</span>
+              <span className="text-xs">{t('settings.themeDark', 'Oscuro')}</span>
             </button>
           </div>
         </div>
@@ -88,7 +92,7 @@ export const ReaderSettingsModal: React.FC<ReaderSettingsModalProps> = ({
         {/* Font Family */}
         <div className="space-y-2">
           <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-            Tipografía
+            {t('settings.typography', 'Tipografía')}
           </label>
           <div className="grid grid-cols-2 gap-2">
             <button
@@ -99,7 +103,7 @@ export const ReaderSettingsModal: React.FC<ReaderSettingsModalProps> = ({
                   : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
               }`}
             >
-              <span className="font-sans font-medium text-sm">Moderna (Sans)</span>
+              <span className="font-sans font-medium text-sm">{t('settings.fontSans', 'Moderna (Sans)')}</span>
             </button>
 
             <button
@@ -110,7 +114,7 @@ export const ReaderSettingsModal: React.FC<ReaderSettingsModalProps> = ({
                   : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
               }`}
             >
-              <span className="font-serif font-medium text-sm">Editorial (Serif)</span>
+              <span className="font-serif font-medium text-sm">{t('settings.fontSerif', 'Editorial (Serif)')}</span>
             </button>
           </div>
         </div>
@@ -119,7 +123,7 @@ export const ReaderSettingsModal: React.FC<ReaderSettingsModalProps> = ({
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Tamaño de Texto
+              {t('settings.textSize', 'Tamaño de Texto')}
             </label>
             <span className="text-xs text-slate-400">
               {settings.fontSize.toUpperCase()}
@@ -136,10 +140,10 @@ export const ReaderSettingsModal: React.FC<ReaderSettingsModalProps> = ({
                     : 'border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
               >
-                {size === 'sm' && 'Pequeño'}
-                {size === 'base' && 'Normal'}
-                {size === 'lg' && 'Grande'}
-                {size === 'xl' && 'Muy Grande'}
+                {size === 'sm' && t('settings.sizeSm', 'Pequeño')}
+                {size === 'base' && t('settings.sizeBase', 'Normal')}
+                {size === 'lg' && t('settings.sizeLg', 'Grande')}
+                {size === 'xl' && t('settings.sizeXl', 'Muy Grande')}
               </button>
             ))}
           </div>
@@ -150,10 +154,10 @@ export const ReaderSettingsModal: React.FC<ReaderSettingsModalProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <div className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                Desplazamiento Automático Continuo
+                {t('settings.autoScroll', 'Desplazamiento Automático Continuo')}
               </div>
               <p className="text-xs text-slate-500">
-                Lectura continua manos libres
+                {t('settings.autoScrollDesc', 'Lectura continua manos libres')}
               </p>
             </div>
             <button
@@ -167,12 +171,12 @@ export const ReaderSettingsModal: React.FC<ReaderSettingsModalProps> = ({
               {settings.autoScroll ? (
                 <>
                   <Square className="w-3.5 h-3.5" />
-                  <span>Pausar</span>
+                  <span>{t('settings.pause', 'Pausar')}</span>
                 </>
               ) : (
                 <>
                   <Play className="w-3.5 h-3.5 fill-current" />
-                  <span>Iniciar</span>
+                  <span>{t('settings.start', 'Iniciar')}</span>
                 </>
               )}
             </button>
@@ -181,8 +185,8 @@ export const ReaderSettingsModal: React.FC<ReaderSettingsModalProps> = ({
           {settings.autoScroll && (
             <div className="space-y-1">
               <div className="flex justify-between text-xs text-slate-500">
-                <span>Velocidad: {settings.autoScrollSpeed}x</span>
-                <span>{settings.autoScrollSpeed === 1 ? 'Lenta' : settings.autoScrollSpeed === 5 ? 'Rápida' : 'Moderada'}</span>
+                <span>{t('settings.speed', 'Velocidad')}: {settings.autoScrollSpeed}x</span>
+                <span>{settings.autoScrollSpeed === 1 ? t('settings.speedSlow', 'Lenta') : settings.autoScrollSpeed === 5 ? t('settings.speedFast', 'Rápida') : t('settings.speedModerate', 'Moderada')}</span>
               </div>
               <input
                 type="range"

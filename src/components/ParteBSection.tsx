@@ -2,29 +2,27 @@ import React from 'react';
 import { 
   Clock, 
   Play, 
-  MessageSquare, 
-  Users, 
-  CheckCircle2, 
   AlertCircle, 
-  Building2, 
-  Sparkles,
-  Timer
+  Building2 
 } from 'lucide-react';
-import { PARTE_B } from '../data/guideContent';
+import { useI18n } from '../i18n/i18nContext';
 
 interface ParteBSectionProps {
   onOpenTimer: () => void;
   onOpenSuggestions?: () => void;
 }
 
-export const ParteBSection: React.FC<ParteBSectionProps> = ({ onOpenTimer, onOpenSuggestions }) => {
+export const ParteBSection: React.FC<ParteBSectionProps> = ({ onOpenTimer }) => {
+  const { guideData, t } = useI18n();
+  const PARTE_B = guideData.PARTE_B;
+
   return (
     <section id="parte-b" className="pt-12 pb-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto space-y-10">
       {/* Chapter Header */}
       <div className="space-y-2 border-b border-slate-200 dark:border-slate-800 pb-4">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">
           <span className="w-2 h-2 rounded-full bg-sky-500" />
-          <span>Página 6 · Conducción Práctica</span>
+          <span>{t('parteB.pageHeader', 'Página 6 · Conducción Práctica')}</span>
         </div>
         <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
           {PARTE_B.title}
@@ -38,10 +36,10 @@ export const ParteBSection: React.FC<ParteBSectionProps> = ({ onOpenTimer, onOpe
       <div className="p-6 rounded-3xl bg-sky-500 text-white shadow-xl space-y-3 relative overflow-hidden">
         <div className="flex items-center justify-between">
           <span className="text-xs font-bold uppercase tracking-wider text-sky-200">
-            Principio Maestro
+            {t('parteB.masterPrinciple', 'Principio Maestro')}
           </span>
           <span className="px-2.5 py-1 rounded-full text-xs font-extrabold bg-white text-sky-700 shadow-sm">
-            10 de 60 minutos
+            {t('parteB.tenOfSixty', '10 de 60 minutos')}
           </span>
         </div>
         <p className="text-base sm:text-lg font-bold leading-snug">
@@ -49,19 +47,19 @@ export const ParteBSection: React.FC<ParteBSectionProps> = ({ onOpenTimer, onOpe
         </p>
       </div>
 
-      {/* Schedule Table / Lectura Continua timeline cards */}
+      {/* Schedule Table */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <Clock className="w-5 h-5 text-sky-600 dark:text-sky-400" />
-            <span>B.1 La sesión estándar de una hora (en línea)</span>
+            <span>{t('parteB.scheduleTitle', 'B.1 La sesión estándar de una hora (en línea)')}</span>
           </h3>
           <button
             onClick={onOpenTimer}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition-all shadow-sm"
           >
             <Play className="w-3.5 h-3.5 fill-current" />
-            <span>Iniciar Cronómetro</span>
+            <span>{t('parteB.startTimer', 'Iniciar Cronómetro')}</span>
           </button>
         </div>
 
@@ -73,13 +71,13 @@ export const ParteBSection: React.FC<ParteBSectionProps> = ({ onOpenTimer, onOpe
             >
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 flex flex-col items-center justify-center shrink-0 border border-sky-100 dark:border-sky-900">
-                  <span className="text-[10px] font-bold text-sky-500 uppercase">Min</span>
+                  <span className="text-[10px] font-bold text-sky-500 uppercase">{t('parteB.min', 'Min')}</span>
                   <span className="text-sm font-black font-mono leading-none">{item.time}</span>
                 </div>
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
-                      Paso {idx + 1}
+                      {t('parteB.step', 'Paso')} {idx + 1}
                     </span>
                     <h4 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white">
                       {item.block}
@@ -99,7 +97,7 @@ export const ParteBSection: React.FC<ParteBSectionProps> = ({ onOpenTimer, onOpe
       <div className="p-6 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/80 space-y-3">
         <h4 className="text-sm font-bold text-amber-900 dark:text-amber-300 flex items-center gap-2">
           <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-          <span>Detalles prácticos que cuestan tiempo cuando no se conocen</span>
+          <span>{t('parteB.practicalDetailsTitle', 'Detalles prácticos que cuestan tiempo cuando no se conocen')}</span>
         </h4>
         <ul className="space-y-2 text-xs sm:text-sm text-amber-800 dark:text-amber-200/90 list-disc list-inside">
           {PARTE_B.practicalTips.map((tip, idx) => (
