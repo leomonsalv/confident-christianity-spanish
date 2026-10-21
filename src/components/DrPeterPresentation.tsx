@@ -11,6 +11,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { VisualData } from '../data/guideContent';
+import { useI18n } from '../i18n/i18nContext';
 
 interface DrPeterPresentationProps {
   content: string;
@@ -23,6 +24,7 @@ export const DrPeterPresentation: React.FC<DrPeterPresentationProps> = ({
   visualData,
   moduleNumber,
 }) => {
+  const { t } = useI18n();
   const [copied, setCopied] = useState(false);
 
   // Copy raw content
@@ -70,7 +72,7 @@ export const DrPeterPresentation: React.FC<DrPeterPresentationProps> = ({
     const trimmed = block.trim();
 
     // 1. Facilitator Alert / Conductor Warning (starts with 'A ' or '▲' or 'Dos notas de conducción')
-    if (trimmed.startsWith('A ') || trimmed.startsWith('▲') || /^(Dos notas de conducción|Nota de conducción|Alerta:)/i.test(trimmed)) {
+    if (trimmed.startsWith('A ') || trimmed.startsWith('▲') || /^(Dos notas de conducción|Nota de conducción|Alerta:|Two facilitation notes|Facilitation note|Key note|Alert:)/i.test(trimmed)) {
       const cleanAlertText = trimmed.replace(/^(A\s+|▲\s*)/, '');
       return (
         <div 
@@ -79,7 +81,7 @@ export const DrPeterPresentation: React.FC<DrPeterPresentationProps> = ({
         >
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-900 dark:text-amber-300">
             <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-            <span>Nota Clave de Conducción para la Sesión</span>
+            <span>{t('presentation.sessionKeyNote', 'Nota Clave de Conducción para la Sesión')}</span>
           </div>
           <p className="text-xs sm:text-sm text-amber-950 dark:text-amber-100 leading-relaxed">
             {cleanAlertText}
@@ -189,23 +191,23 @@ export const DrPeterPresentation: React.FC<DrPeterPresentationProps> = ({
       <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
         <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
           <BookOpen className="w-5 h-5 text-sky-600 dark:text-sky-400" />
-          <span>Lo que el Dr. Peter presenta</span>
+          <span>{t('presentation.title', 'Lo que el Dr. Peter presenta')}</span>
         </h3>
 
         <button
           onClick={handleCopy}
-          title="Copiar contenido de la exposición"
+          title={t('presentation.copyContent', 'Copiar contenido de la exposición')}
           className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors shadow-sm"
         >
           {copied ? (
             <>
               <Check className="w-3.5 h-3.5 text-emerald-500" />
-              <span className="text-emerald-600 dark:text-emerald-400">¡Copiado!</span>
+              <span className="text-emerald-600 dark:text-emerald-400">{t('presentation.copied', '¡Copiado!')}</span>
             </>
           ) : (
             <>
               <Copy className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Copiar resumen</span>
+              <span className="hidden sm:inline">{t('presentation.copySummary', 'Copiar resumen')}</span>
             </>
           )}
         </button>
@@ -225,7 +227,7 @@ export const DrPeterPresentation: React.FC<DrPeterPresentationProps> = ({
               {visualData.title}
             </span>
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900 text-sky-800 dark:text-sky-300">
-              Datos clave
+              {t('presentation.keyData', 'Datos clave')}
             </span>
           </div>
           <div className="overflow-x-auto">

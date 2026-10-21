@@ -215,10 +215,10 @@ export const SidebarTOC: React.FC<SidebarTOCProps> = ({
           <div className="space-y-1">
             <div className="flex items-center justify-between px-2">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                {activeTab === 'bookmarks' ? t('toc.saved', 'Módulos Guardados') : `${t('module.module', 'Módulos')} 1-20`}
+                {activeTab === 'bookmarks' ? t('toc.saved', 'Módulos Guardados') : t('toc.modulesRange', 'Módulos 1-20')}
               </span>
               <span className="text-[10px] text-slate-400">
-                {displayedModules.length} {t('module.module', 'módulos')}
+                {displayedModules.length} {t('toc.modulesLower', 'módulos')}
               </span>
             </div>
 
